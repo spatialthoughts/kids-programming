@@ -555,10 +555,10 @@
   <div id="title-screen">
     <div class="title-card">
       <span class="robot-big">🤖</span>
-      <div class="title-heading">Can I Guess<br>Your Age?</div>
+      <div class="title-heading">Can I Guess<br>Your Mental Age?</div>
       <p class="title-sub">
         I'm <strong>Robo-Guesser 3000</strong> and I think I can figure out<br>
-        your age using just <strong>10 fun questions</strong>!<br>
+        your mental age using just <strong>10 fun questions</strong>!<br>
         No cheating — I won't ask directly! 😄
       </p>
       <button class="start-btn" onclick="startGame()">🚀 Let's Go!</button>
@@ -632,7 +632,7 @@
       <div class="end-heading" id="end-heading">Drum roll please…</div>
       <div class="end-sub" id="end-sub">After all those clues, my final answer is:</div>
       <div class="final-age-display">
-        <div class="final-age-label">I think you are</div>
+        <div class="final-age-label">I think your mental age is</div>
         <div class="final-age-num" id="final-age-num">?</div>
         <div class="final-age-unit">years old!</div>
       </div>
@@ -659,10 +659,12 @@
       tag: "Food Vibes",
       banner: "b1",
       options: [
-        { text: "🧀 Mac & Cheese or chicken nuggets", ageHint: 9,  clue: "🧀 Mac & cheese fan" },
+        { text: "🧀 Mac & Cheese or French Fries", ageHint: 9,  clue: "🧀 Mac & cheese fan" },
         { text: "🍕 Pizza or burgers",               ageHint: 14, clue: "🍕 Pizza lover" },
-        { text: "🍣 Sushi or fancy stuff",            ageHint: 26, clue: "🍣 Fancy taste" },
-        { text: "🥑 Avocado toast or salads",         ageHint: 30, clue: "🥑 Health food fan" },
+        { text: "🍣 Sushi or fancy stuff",            ageHint: 30, clue: "🍣 Fancy taste" },
+        { text: "🥑 Avocado toast or salads",         ageHint: 40, clue: "🥑 Health food fan" },
+        { text: "🥘 Khichdi ",         ageHint: 60, clue: "🥘 Traditional Food" },
+
       ]
     },
     {
@@ -671,10 +673,10 @@
       tag: "Screen Time",
       banner: "b2",
       options: [
-        { text: "🍭 On a tablet, with my parents",    ageHint: 8,  clue: "🍭 Watched with parents" },
-        { text: "📱 YouTube / TikTok all the way!",   ageHint: 13, clue: "📱 YouTube/TikTok watcher" },
-        { text: "📺 Netflix & streaming services",    ageHint: 22, clue: "📺 Streaming fan" },
-        { text: "📡 Regular cable TV",                ageHint: 42, clue: "📡 Cable TV watcher" },
+        { text: "🍭 On a tablet",    ageHint: 8,  clue: "🍭 Watched with parents" },
+        { text: "📱 YouTube / TikTok all the way!",   ageHint: 20, clue: "📱 YouTube/TikTok watcher" },
+        { text: "📺 Netflix & streaming services",    ageHint: 30, clue: "📺 Streaming fan" },
+        { text: "📡 Regular cable TV",                ageHint: 60, clue: "📡 Cable TV watcher" },
       ]
     },
     {
@@ -684,9 +686,9 @@
       banner: "b3",
       options: [
         { text: "🍬 Buy ALL the candy & toys!",       ageHint: 8,  clue: "🍬 Spends on candy" },
-        { text: "🎮 New game or cool gadget",         ageHint: 13, clue: "🎮 Buys games" },
-        { text: "👗 Shopping for clothes",            ageHint: 20, clue: "👗 Spends on fashion" },
-        { text: "💳 Save it or pay something off",    ageHint: 38, clue: "💳 Sensible saver" },
+        { text: "🎮 New game or cool gadget",         ageHint: 20, clue: "🎮 Buys games" },
+        { text: "👗 Shopping for clothes",            ageHint: 30, clue: "👗 Spends on fashion" },
+        { text: "💳 Deposit in the bank",    ageHint: 50, clue: "💳 Sensible saver" },
       ]
     },
     {
@@ -696,9 +698,9 @@
       banner: "b4",
       options: [
         { text: "🏠 Build the ultimate blanket fort!",ageHint: 9,  clue: "🏠 Blanket fort builder" },
-        { text: "🎮 Game until my eyes go square",    ageHint: 14, clue: "🎮 Marathon gamer" },
-        { text: "🎬 Binge a whole TV series",         ageHint: 23, clue: "🎬 Binge watcher" },
-        { text: "📚 Read or catch up on things",      ageHint: 38, clue: "📚 Reader/catch-up person" },
+        { text: "🎮 Game until my eyes go square",    ageHint: 20, clue: "🎮 Marathon gamer" },
+        { text: "🎬 Binge a whole TV series",         ageHint: 30, clue: "🎬 Binge watcher" },
+        { text: "📚 Read or catch up on things",      ageHint: 45, clue: "📚 Reader/catch-up person" },
       ]
     },
     {
@@ -710,19 +712,19 @@
         { text: "🚗 Mum or Dad drives me",            ageHint: 9,  clue: "🚗 Driven by parents" },
         { text: "🚌 School bus or walk",              ageHint: 13, clue: "🚌 School bus rider" },
         { text: "🚘 I drive myself!",                  ageHint: 22, clue: "🚘 Has a driving licence" },
-        { text: "🏠 Work from home / retired",        ageHint: 45, clue: "🏠 Works from home" },
+        { text: "🏠 Work from home / retired",        ageHint: 50, clue: "🏠 Works from home" },
       ]
     },
     {
-      text: "What's your bedtime like on a school night? 😴",
+      text: "What's your bedtime like? 😴",
       emoji: "🌙",
       tag: "Bedtime",
       banner: "b6",
       options: [
         { text: "🌟 Around 8pm — I need my sleep!",  ageHint: 8,  clue: "🌟 8pm bedtime" },
         { text: "🦉 Midnight owl, way too late",      ageHint: 15, clue: "🦉 Midnight bedtime" },
-        { text: "🤷 Whenever I want!",                ageHint: 22, clue: "🤷 No set bedtime" },
-        { text: "😩 I wish I could sleep MORE",       ageHint: 38, clue: "😩 Always tired" },
+        { text: "🤷 Whenever I want!",                ageHint: 30, clue: "🤷 No set bedtime" },
+        { text: "😩 I wish I could sleep MORE",       ageHint: 45, clue: "😩 Always tired" },
       ]
     },
     {
@@ -732,9 +734,11 @@
       banner: "b7",
       options: [
         { text: "🧸 A cool toy or stuffed animal!",   ageHint: 8,  clue: "🧸 Wants a toy" },
-        { text: "🎮 The latest games console",        ageHint: 13, clue: "🎮 Wants a console" },
-        { text: "✈️ A holiday or adventure trip",     ageHint: 24, clue: "✈️ Wants a trip" },
-        { text: "💸 Cash or gift cards, please!",     ageHint: 32, clue: "💸 Wants cash" },
+        { text: "🎮 The latest games console",        ageHint: 20, clue: "🎮 Wants a console" },
+        { text: "✈️ A holiday or adventure trip",     ageHint: 30, clue: "✈️ Wants a trip" },
+        { text: "💸 Cash or gift cards, please!",     ageHint: 40, clue: "💸 Wants cash" },
+        { text: "❌ I don't want anything",     ageHint: 60, clue: "❌ Wants nothing" },
+
       ]
     },
     {
@@ -745,8 +749,8 @@
       options: [
         { text: "😭 It's so unfair, I hate it!",      ageHint: 9,  clue: "😭 Hates homework" },
         { text: "😤 I do it, but I'm not happy",      ageHint: 14, clue: "😤 Reluctant worker" },
-        { text: "🙄 It's fine, just part of life",    ageHint: 22, clue: "🙄 Accepts responsibilities" },
-        { text: "📋 I make lists and get it done!",   ageHint: 36, clue: "📋 Super organised" },
+        { text: "🙄 It's fine, just part of life",    ageHint: 30, clue: "🙄 Accepts responsibilities" },
+        { text: "📋 I make lists and get it done!",   ageHint: 45, clue: "📋 Super organised" },
       ]
     },
     {
@@ -769,8 +773,8 @@
       options: [
         { text: "🏰 Disney World — PLEASE!",          ageHint: 9,  clue: "🏰 Disney dreamer" },
         { text: "🏕️ Summer camp adventure",           ageHint: 13, clue: "🏕️ Camp adventurer" },
-        { text: "🎒 Backpacking Europe",              ageHint: 22, clue: "🎒 Europe backpacker" },
-        { text: "🏖️ Relaxing luxury beach resort",    ageHint: 40, clue: "🏖️ Luxury beach lover" },
+        { text: "🎒 Backpacking Europe",              ageHint: 30, clue: "🎒 Europe backpacker" },
+        { text: "🏖️ Relaxing luxury beach resort",    ageHint: 50, clue: "🏖️ Luxury beach lover" },
       ]
     }
   ];
@@ -859,33 +863,18 @@
     // Update guess panel
     updateGuessPanel();
 
-    // Show next btn
-    document.getElementById('next-btn').style.display = 'block';
+    // Auto-advance to next question after a short delay
+    setTimeout(() => nextQuestion(), 900);
   }
 
   function updateGuessPanel() {
     const n = ageHints.length;
-    const avg = ageHints.reduce((a, b) => a + b, 0) / n;
-    const guess = Math.round(avg);
-
-    // Update number with animation
-    const numEl = document.getElementById('age-number');
-    const bubble = document.getElementById('age-bubble');
-    numEl.style.animation = 'none';
-    void numEl.offsetWidth;
-    numEl.textContent = guess;
-    numEl.style.animation = 'numFlip 0.4s ease';
-    document.getElementById('age-unit').textContent = 'yrs';
-
-    bubble.classList.remove('pop');
-    void bubble.offsetWidth;
-    bubble.classList.add('pop');
 
     // Robot face cycles
     const faceIndex = Math.min(n - 1, robotFaces.length - 1);
     document.getElementById('robot-face').textContent = robotFaces[faceIndex];
 
-    // Guess label
+    // Guess label — keep it mysterious
     document.getElementById('guess-label').textContent = guessMessages[n] || guessMessages[guessMessages.length - 1];
 
     // Confidence bar
