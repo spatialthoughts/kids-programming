@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎮 Apps by Anika</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      display: flex; align-items: center; justify-content: center;
+      padding: 32px 16px;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(180,150,255,0.1) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none; z-index: 0;
+    }
+    .container { position: relative; z-index: 1; width: 100%; max-width: 620px; text-align: center; }
+    .title { font-size: 42px; font-weight: 900;
+      background: linear-gradient(90deg, #a78bfa, #60a5fa, #f472b6, #a78bfa);
+      background-size: 250%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: shimmer 4s linear infinite; margin-bottom: 8px; }
+    .sub { font-size: 17px; color: rgba(200,190,255,0.75); margin-bottom: 40px; }
+    .games { display: grid; gap: 20px; }
+    .game-card {
+      background: rgba(255,255,255,0.07); backdrop-filter: blur(12px);
+      border: 2px solid rgba(180,150,255,0.22); border-radius: 24px;
+      padding: 28px 28px; text-decoration: none;
+      transition: transform 0.18s, box-shadow 0.18s;
+      display: block;
+    }
+    .game-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(124,58,237,0.4); }
+    .game-icon { font-size: 52px; display: block; margin-bottom: 10px; }
+    .game-title { font-size: 22px; font-weight: 900; color: white; margin-bottom: 6px; }
+    .game-desc { font-size: 14px; color: rgba(200,190,255,0.7); line-height: 1.5; }
+    .badge {
+      display: inline-block; margin-top: 10px;
+      padding: 4px 14px; border-radius: 20px;
+      font-size: 12px; font-weight: 800; letter-spacing: 1px;
+    }
+    .badge-purple { background: rgba(124,58,237,0.35); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.3); }
+    .badge-red    { background: rgba(220,38,38,0.3);   color: #fca5a5; border: 1px solid rgba(248,113,113,0.3); }
+    @keyframes shimmer { from{background-position:0%} to{background-position:250%} }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div style="font-size:60px;margin-bottom:12px">🎮</div>
+  <div class="title">Anika's Games!</div>
+  <p class="sub">Pick a game and have fun! ✨</p>
+  <div class="games">
+    <a href="age_guesser.html" class="game-card">
+      <span class="game-icon">🤖</span>
+      <div class="game-title">Can I Guess Your Age?</div>
+      <div class="game-desc">Answer 10 fun questions and Robo-Guesser 3000 will try to figure out how old you are — without asking directly!</div>
+      <span class="badge badge-purple">10 QUESTIONS • AGE GUESSING</span>
+    </a>
+    <a href="miraculous_ladybug_quiz.html" class="game-card">
+      <span class="game-icon">🐞</span>
+      <div class="game-title">Miraculous Ladybug Quiz</div>
+      <div class="game-desc">Are you a true fan of Ladybug & Cat Noir? Test your knowledge in this 6-question quiz about Paris's greatest heroes!</div>
+      <span class="badge badge-red">6 QUESTIONS • MIRACULOUS LADYBUG</span>
+    </a>
+  </div>
+</div>
+</body>
+</html>

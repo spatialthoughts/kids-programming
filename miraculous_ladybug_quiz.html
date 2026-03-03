@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🐞 Miraculous Ladybug Quiz 🐞</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a0008 0%, #4a0015 40%, #1a000a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(255,80,80,0.12) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,200,200,0.08) 1px, transparent 1px);
+      background-size: 55px 55px, 95px 95px;
+      background-position: 0 0, 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 680px;
+    }
+
+    /* ── TITLE SCREEN ── */
+    #title-screen { text-align: center; animation: fadeIn 0.8s ease; }
+
+    .title-card {
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(12px);
+      border: 2px solid rgba(255,100,100,0.3);
+      border-radius: 32px;
+      padding: 48px 32px;
+      box-shadow: 0 8px 60px rgba(220,0,50,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    .title-banner { font-size: 80px; margin-bottom: 8px; animation: bounce 2s infinite; display: block; }
+
+    .title-text {
+      font-size: 38px;
+      font-weight: 900;
+      background: linear-gradient(90deg, #ff6b6b, #ff2d55, #ffb3c1, #ff6b6b);
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 3s linear infinite;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: rgba(255,210,210,0.75);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .subtitle strong { color: #ffb3c1; }
+
+    .start-btn {
+      display: inline-block;
+      padding: 18px 52px;
+      background: linear-gradient(135deg, #ff2d55, #cc0033);
+      color: white;
+      font-family: 'Nunito', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 30px rgba(220,0,50,0.55);
+      transition: transform 0.15s, box-shadow 0.15s;
+      letter-spacing: 1px;
+    }
+    .start-btn:hover { transform: scale(1.06); box-shadow: 0 8px 40px rgba(220,0,50,0.75); }
+    .start-btn:active { transform: scale(0.97); }
+
+    /* ── QUIZ SCREEN ── */
+    #quiz-screen { display: none; animation: fadeIn 0.6s ease; }
+
+    .progress-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .progress-label {
+      color: rgba(255,190,190,0.85);
+      font-size: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .progress-track {
+      flex: 1;
+      height: 10px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff2d55, #ff6b6b, #ffb3c1);
+      border-radius: 20px;
+      transition: width 0.5s ease;
+    }
+    .score-badge {
+      background: linear-gradient(135deg, #ff2d55, #cc0033);
+      color: white;
+      font-weight: 900;
+      font-size: 14px;
+      padding: 4px 14px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    /* ── QUESTION CARD ── */
+    .question-card {
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(12px);
+      border: 2px solid rgba(255,100,100,0.22);
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 8px 50px rgba(200,0,40,0.22), inset 0 1px 0 rgba(255,255,255,0.07);
+    }
+
+    .card-image {
+      width: 100%;
+      height: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 75px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-image .img-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.92);
+      background: rgba(0,0,0,0.38);
+      padding: 6px 18px;
+      border-radius: 20px;
+      margin-top: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Ladybug-themed image backgrounds */
+    .theme-1 { background: linear-gradient(135deg, #2a0008, #7a0020, #cc0033); }       /* Deep red – Ladybug */
+    .theme-2 { background: linear-gradient(135deg, #0a0a1a, #1a1a3e, #2d2d6e); }       /* Midnight – Cat Noir */
+    .theme-3 { background: linear-gradient(135deg, #1a0a2e, #4a1a7a, #7a2aaa); }       /* Purple – Hawk Moth */
+    .theme-4 { background: linear-gradient(135deg, #001a1a, #004040, #007070); }       /* Teal – Kwamis */
+    .theme-5 { background: linear-gradient(135deg, #2a1a00, #704800, #cc8800); }       /* Gold – Paris */
+    .theme-6 { background: linear-gradient(135deg, #2a2000, #806000, #ddaa00); }       /* Amber – Bee Miraculous */
+
+    .card-body { padding: 24px 28px 28px; }
+
+    .question-number {
+      font-size: 12px;
+      font-weight: 700;
+      color: #ff6b6b;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .question-text {
+      font-size: 20px;
+      font-weight: 800;
+      color: white;
+      line-height: 1.4;
+      margin-bottom: 22px;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .option-btn {
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.07);
+      border: 2px solid rgba(255,120,120,0.2);
+      border-radius: 16px;
+      color: rgba(255,220,220,0.9);
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      text-align: left;
+      line-height: 1.3;
+    }
+    .option-btn:hover:not(:disabled) {
+      background: rgba(220,0,60,0.22);
+      border-color: rgba(255,100,100,0.5);
+      transform: translateY(-2px);
+    }
+    .option-btn:disabled { cursor: default; }
+
+    .option-btn.correct {
+      background: linear-gradient(135deg, rgba(0,200,100,0.35), rgba(0,160,80,0.4));
+      border-color: #00e676;
+      color: #b9ffd8;
+    }
+    .option-btn.wrong {
+      background: linear-gradient(135deg, rgba(220,0,50,0.3), rgba(180,0,30,0.35));
+      border-color: #ff3366;
+      color: #ffb3c1;
+    }
+    .option-btn.reveal {
+      background: linear-gradient(135deg, rgba(0,200,100,0.2), rgba(0,160,80,0.25));
+      border-color: rgba(0,230,118,0.5);
+      color: rgba(185,255,216,0.85);
+    }
+
+    .feedback-bar {
+      margin-top: 16px;
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+      display: none;
+      animation: popIn 0.3s ease;
+    }
+    .feedback-bar.correct-fb {
+      background: linear-gradient(135deg, rgba(0,200,100,0.22), rgba(0,160,80,0.28));
+      border: 2px solid rgba(0,230,118,0.5);
+      color: #b9ffd8;
+    }
+    .feedback-bar.wrong-fb {
+      background: linear-gradient(135deg, rgba(220,0,50,0.18), rgba(180,0,30,0.22));
+      border: 2px solid rgba(255,80,120,0.42);
+      color: #ffccd5;
+    }
+
+    .next-btn {
+      display: none;
+      width: 100%;
+      margin-top: 16px;
+      padding: 16px;
+      background: linear-gradient(135deg, #ff2d55, #cc0033);
+      color: white;
+      font-family: 'Nunito', sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 24px rgba(220,0,50,0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .next-btn:hover { transform: scale(1.03); box-shadow: 0 6px 30px rgba(220,0,50,0.6); }
+
+    /* ── END SCREEN ── */
+    #end-screen { display: none; text-align: center; animation: fadeIn 0.8s ease; }
+
+    .end-card {
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(12px);
+      border: 2px solid rgba(255,100,100,0.3);
+      border-radius: 32px;
+      padding: 48px 32px;
+      box-shadow: 0 8px 60px rgba(220,0,50,0.3);
+    }
+
+    .end-emoji { font-size: 80px; animation: bounce 1.5s infinite; display: block; margin-bottom: 8px; }
+
+    .end-title {
+      font-size: 32px;
+      font-weight: 900;
+      background: linear-gradient(90deg, #ff6b6b, #ff2d55, #ffb3c1, #ff6b6b);
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 3s linear infinite;
+      margin-bottom: 8px;
+    }
+
+    .end-subtitle { font-size: 16px; color: rgba(255,200,200,0.7); margin-bottom: 24px; }
+
+    .score-display {
+      margin: 24px 0;
+      padding: 28px;
+      background: linear-gradient(135deg, rgba(220,0,50,0.18), rgba(180,0,30,0.14));
+      border: 2px solid rgba(255,100,100,0.28);
+      border-radius: 24px;
+    }
+
+    .score-number {
+      font-size: 72px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #ff6b6b, #ffb3c1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+
+    .score-out-of { font-size: 20px; color: rgba(255,200,200,0.8); font-weight: 700; }
+    .rank-text { font-size: 22px; font-weight: 900; color: #ffb3c1; margin-top: 12px; }
+    .stars { font-size: 32px; letter-spacing: 4px; margin: 16px 0; }
+
+    .play-again-btn {
+      display: inline-block;
+      padding: 18px 52px;
+      background: linear-gradient(135deg, #ff2d55, #cc0033);
+      color: white;
+      font-family: 'Nunito', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 30px rgba(220,0,50,0.5);
+      transition: transform 0.15s, box-shadow 0.15s;
+      margin-top: 16px;
+    }
+    .play-again-btn:hover { transform: scale(1.06); box-shadow: 0 8px 40px rgba(220,0,50,0.7); }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+    @keyframes popIn  { from { opacity:0; transform: scale(0.9); }     to { opacity:1; transform: scale(1); } }
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+    @keyframes shimmer { from { background-position: 0% 50%; } to { background-position: 200% 50%; } }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- TITLE SCREEN -->
+  <div id="title-screen">
+    <div class="title-card">
+      <span class="title-banner">🐞🐱</span>
+      <div class="title-text">Miraculous<br>Ladybug Quiz! by Anika</div>
+      <p class="subtitle">
+        Are you a true enough fan to know all the answers about<br>
+        <strong>Ladybug & Cat Noir?</strong><br>
+        Answer 6 questions to earn your Miraculous! ✨
+      </p>
+      <button class="start-btn" onclick="startQuiz()">🐞 Start Quiz 🐱</button>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quiz-screen">
+    <div class="progress-bar-wrap">
+      <span class="progress-label" id="progress-label">Question 1 of 5</span>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <span class="score-badge" id="score-badge">⭐ 0 pts</span>
+    </div>
+
+    <div class="question-card" id="question-card">
+      <div class="card-image" id="card-image">
+        <span id="card-emoji"></span>
+        <span class="img-label" id="card-label"></span>
+      </div>
+      <div class="card-body">
+        <div class="question-number" id="question-number"></div>
+        <div class="question-text" id="question-text"></div>
+        <div class="options-grid" id="options-grid"></div>
+        <div class="feedback-bar" id="feedback-bar"></div>
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question ➡️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="end-screen">
+    <div class="end-card">
+      <span class="end-emoji" id="end-emoji">🏆</span>
+      <div class="end-title" id="end-title">Quest Complete!</div>
+      <div class="end-subtitle" id="end-subtitle">Here's how you did:</div>
+      <div class="score-display">
+        <div class="score-number" id="final-score">0</div>
+        <div class="score-out-of">out of 6 points</div>
+        <div class="stars" id="stars-display"></div>
+        <div class="rank-text" id="rank-text"></div>
+      </div>
+      <button class="play-again-btn" onclick="resetQuiz()">🔄 Play Again!</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const questions = [
+    {
+      question: "Marinette has a tiny magical creature called a kwami who lives in her earrings. What is her kwami's name?",
+      emoji: "🐞",
+      label: "🐞 Ladybug's Kwami",
+      theme: "theme-1",
+      options: [
+        { text: "Plagg", correct: false },
+        { text: "Tikki", correct: true },
+        { text: "Duusu", correct: false },
+        { text: "Nooroo", correct: false }
+      ],
+      explanation: "Tikki is Marinette's kwami! She lives in the Ladybug earrings and grants Marinette the power to transform into Ladybug! 🐞✨"
+    },
+    {
+      question: "What is the name of Cat Noir's powerful special move that can destroy almost anything with a single touch?",
+      emoji: "🐱",
+      label: "🐱 Cat Noir's Power",
+      theme: "theme-2",
+      options: [
+        { text: "Lucky Charm", correct: false },
+        { text: "Shadow Strike", correct: false },
+        { text: "Cataclysm", correct: true },
+        { text: "Dark Paw", correct: false }
+      ],
+      explanation: "Cataclysm! Cat Noir charges up his hand with destructive energy and can destroy anything he touches — very powerful! ⚡🖤"
+    },
+    {
+      question: "The main villain sends out evil butterflies to create supervillains. What is this villain called?",
+      emoji: "🦋",
+      label: "🦋 The Main Villain",
+      theme: "theme-3",
+      options: [
+        { text: "Shadow Queen", correct: false },
+        { text: "Hawk Moth", correct: true },
+        { text: "Dark Butterfly", correct: false },
+        { text: "Akuma Master", correct: false }
+      ],
+      explanation: "Hawk Moth uses the Butterfly Miraculous to send akumas — evil butterflies that turn unhappy people into supervillains! 🦋😈"
+    },
+    {
+      question: "Ladybug uses a special tool as her main weapon in battles. What is it?",
+      emoji: "🪀",
+      label: "🪀 Ladybug's Weapon",
+      theme: "theme-4",
+      options: [
+        { text: "A magic wand", correct: false },
+        { text: "A shield", correct: false },
+        { text: "A yo-yo", correct: true },
+        { text: "A sword", correct: false }
+      ],
+      explanation: "Ladybug's spotted yo-yo is her signature weapon! She uses it to swing around Paris, fight villains, and even capture akumas! 🪀❤️"
+    },
+    {
+      question: "Marinette and Adrien both have a secret — they don't know each other's superhero identity! Which is TRUE?",
+      emoji: "💝",
+      label: "💝 Secret Identities",
+      theme: "theme-5",
+      options: [
+        { text: "Marinette loves Cat Noir, Adrien loves Ladybug", correct: false },
+        { text: "Marinette loves Adrien, Adrien loves Ladybug", correct: true },
+        { text: "Marinette loves Adrien, Adrien loves Marinette", correct: false },
+        { text: "They both know each other's identity", correct: false }
+      ],
+      explanation: "Marinette has a crush on Adrien (not Cat Noir!), while Adrien has a crush on Ladybug (not Marinette!). If only they knew… 💘😲"
+    },
+    {
+      question: "Chloé Bourgeois was the first Queen Bee. Who became the SECOND owner of the Bee Miraculous?",
+      emoji: "🐝",
+      label: "🐝 The Bee Miraculous",
+      theme: "theme-6",
+      options: [
+        { text: "Alya Césaire", correct: false },
+        { text: "Kagami Tsurugi", correct: false },
+        { text: "Zoé Lee", correct: true },
+        { text: "Luka Couffaine", correct: false }
+      ],
+      explanation: "Zoé Lee — Chloé's half-sister! She became Vesperia, the new holder of the Bee Miraculous and a brave hero of Paris! 🐝💛"
+    }
+  ];
+
+  let currentQ = 0;
+  let score = 0;
+  let answered = false;
+
+  function startQuiz() {
+    document.getElementById('title-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'block';
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    answered = false;
+    const q = questions[currentQ];
+
+    document.getElementById('progress-label').textContent = `Question ${currentQ + 1} of 6`;
+    document.getElementById('progress-fill').style.width = `${(currentQ / 6) * 100}%`;
+    document.getElementById('score-badge').textContent = `⭐ ${score} pts`;
+
+    const imgDiv = document.getElementById('card-image');
+    imgDiv.className = `card-image ${q.theme}`;
+    document.getElementById('card-emoji').textContent = q.emoji;
+    document.getElementById('card-label').textContent = q.label;
+
+    document.getElementById('question-number').textContent = `✦ QUESTION ${currentQ + 1} OF 6 ✦`;
+    document.getElementById('question-text').textContent = q.question;
+
+    const grid = document.getElementById('options-grid');
+    grid.innerHTML = '';
+    const letters = ['A', 'B', 'C', 'D'];
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<strong>${letters[i]}.</strong> ${opt.text}`;
+      btn.onclick = () => selectAnswer(i);
+      grid.appendChild(btn);
+    });
+
+    const fb = document.getElementById('feedback-bar');
+    fb.style.display = 'none';
+    fb.className = 'feedback-bar';
+    document.getElementById('next-btn').style.display = 'none';
+
+    const card = document.getElementById('question-card');
+    card.style.animation = 'none';
+    void card.offsetWidth;
+    card.style.animation = 'fadeIn 0.5s ease';
+  }
+
+  function selectAnswer(index) {
+    if (answered) return;
+    answered = true;
+
+    const q = questions[currentQ];
+    const buttons = document.querySelectorAll('.option-btn');
+    const isCorrect = q.options[index].correct;
+
+    if (isCorrect) score++;
+
+    buttons.forEach((btn, i) => {
+      btn.disabled = true;
+      if (q.options[i].correct) {
+        btn.classList.add(i === index ? 'correct' : 'reveal');
+      } else if (i === index) {
+        btn.classList.add('wrong');
+      }
+    });
+
+    const fb = document.getElementById('feedback-bar');
+    fb.style.display = 'block';
+    if (isCorrect) {
+      fb.className = 'feedback-bar correct-fb';
+      fb.innerHTML = `🎉 <strong>Correct! +1 point!</strong><br><span style="font-size:14px;font-weight:600;opacity:0.9">${q.explanation}</span>`;
+    } else {
+      const correctText = q.options.find(o => o.correct).text;
+      fb.className = 'feedback-bar wrong-fb';
+      fb.innerHTML = `💔 <strong>Not quite!</strong> The answer was: <em>${correctText}</em><br><span style="font-size:14px;font-weight:600;opacity:0.9">${q.explanation}</span>`;
+    }
+
+    const nextBtn = document.getElementById('next-btn');
+    nextBtn.style.display = 'block';
+    nextBtn.textContent = currentQ < questions.length - 1 ? 'Next Question ➡️' : '🏆 See My Score!';
+    document.getElementById('score-badge').textContent = `⭐ ${score} pts`;
+  }
+
+  function nextQuestion() {
+    currentQ++;
+    if (currentQ < questions.length) {
+      loadQuestion();
+    } else {
+      showEndScreen();
+    }
+  }
+
+  function showEndScreen() {
+    document.getElementById('quiz-screen').style.display = 'none';
+    const end = document.getElementById('end-screen');
+    end.style.display = 'block';
+
+    document.getElementById('final-score').textContent = score;
+
+    let emoji, title, subtitle, stars, rank;
+    if (score === 6) {
+      emoji = '🐞'; title = 'TRUE MIRACULOUS HERO!'; subtitle = 'A perfect score — Paris is safe with you!';
+      stars = '⭐⭐⭐⭐⭐⭐'; rank = '👑 Guardian of the Miraculouses';
+    } else if (score === 5) {
+      emoji = '✨'; title = 'Amazing Fan!'; subtitle = 'So close to perfect — great job!';
+      stars = '⭐⭐⭐⭐⭐🌟'; rank = '🐞 Senior Miraculous Hero';
+    } else if (score === 4) {
+      emoji = '💪'; title = 'Well Done!'; subtitle = 'Hawk Moth better watch out!';
+      stars = '⭐⭐⭐⭐✨✨'; rank = '🐱 Miraculous Hero in Training';
+    } else if (score === 3) {
+      emoji = '🌱'; title = 'Keep Going!'; subtitle = 'Your Miraculous powers are growing!';
+      stars = '⭐⭐⭐✨✨✨'; rank = '🦋 Miraculous Apprentice';
+    } else if (score === 2) {
+      emoji = '🔮'; title = 'Keep Watching!'; subtitle = 'Every hero starts somewhere!';
+      stars = '⭐⭐✨✨✨✨'; rank = '🌸 Miraculous Recruit';
+    } else {
+      emoji = '🌸'; title = 'Keep Watching!'; subtitle = 'Every great hero starts somewhere!';
+      stars = '⭐✨✨✨✨✨'; rank = '🌸 Miraculous Recruit';
+    }
+
+    document.getElementById('end-emoji').textContent = emoji;
+    document.getElementById('end-title').textContent = title;
+    document.getElementById('end-subtitle').textContent = subtitle;
+    document.getElementById('stars-display').textContent = stars;
+    document.getElementById('rank-text').textContent = rank;
+  }
+
+  function resetQuiz() {
+    currentQ = 0;
+    score = 0;
+    answered = false;
+    document.getElementById('end-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'block';
+    loadQuestion();
+  }
+</script>
+</body>
+</html>

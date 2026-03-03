@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🔮 Age Guesser!</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px 16px;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(180,150,255,0.1) 1px, transparent 1px),
+        radial-gradient(circle, rgba(100,200,255,0.07) 1px, transparent 1px);
+      background-size: 50px 50px, 90px 90px;
+      background-position: 0 0, 25px 25px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    /* ══════════════════════════════
+       TITLE SCREEN
+    ══════════════════════════════ */
+    #title-screen { animation: fadeUp 0.7s ease; }
+
+    .title-card {
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(14px);
+      border: 2px solid rgba(180,150,255,0.3);
+      border-radius: 32px;
+      padding: 52px 40px;
+      text-align: center;
+      box-shadow: 0 12px 60px rgba(100,50,255,0.35);
+    }
+
+    .robot-big { font-size: 90px; display: block; animation: bob 2.5s ease-in-out infinite; margin-bottom: 12px; }
+
+    .title-heading {
+      font-size: 44px;
+      font-weight: 900;
+      background: linear-gradient(90deg, #a78bfa, #60a5fa, #f472b6, #a78bfa);
+      background-size: 250%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 4s linear infinite;
+      margin-bottom: 12px;
+    }
+
+    .title-sub {
+      font-size: 18px;
+      color: rgba(200,190,255,0.8);
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+    .title-sub strong { color: #c4b5fd; }
+
+    .start-btn {
+      padding: 18px 60px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      color: white;
+      font-family: 'Nunito', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 30px rgba(124,58,237,0.6);
+      transition: transform 0.15s, box-shadow 0.15s;
+      letter-spacing: 0.5px;
+    }
+    .start-btn:hover { transform: scale(1.06); box-shadow: 0 8px 40px rgba(124,58,237,0.8); }
+    .start-btn:active { transform: scale(0.97); }
+
+    /* ══════════════════════════════
+       GAME LAYOUT
+    ══════════════════════════════ */
+    #game-screen { display: none; animation: fadeUp 0.6s ease; }
+
+    .game-layout {
+      display: grid;
+      grid-template-columns: 1fr 260px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 680px) {
+      .game-layout { grid-template-columns: 1fr; }
+      .guess-panel { order: -1; }
+    }
+
+    /* ── LEFT: Question area ── */
+    .question-area {}
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .q-label {
+      font-size: 14px;
+      font-weight: 800;
+      color: rgba(180,160,255,0.85);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .progress-track {
+      flex: 1;
+      height: 10px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #a78bfa, #60a5fa, #f472b6);
+      border-radius: 20px;
+      transition: width 0.5s ease;
+    }
+
+    .question-card {
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(12px);
+      border: 2px solid rgba(180,150,255,0.2);
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(80,50,200,0.25);
+    }
+
+    .card-banner {
+      height: 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 70px;
+      gap: 8px;
+    }
+
+    .card-banner .banner-tag {
+      font-size: 13px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.88);
+      background: rgba(0,0,0,0.35);
+      padding: 5px 16px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Banner themes */
+    .b1  { background: linear-gradient(135deg,#1a0533,#4c1d95,#7c3aed); }
+    .b2  { background: linear-gradient(135deg,#0c1a3a,#1e3a8a,#2563eb); }
+    .b3  { background: linear-gradient(135deg,#0f2a1a,#14532d,#16a34a); }
+    .b4  { background: linear-gradient(135deg,#3a1200,#92400e,#d97706); }
+    .b5  { background: linear-gradient(135deg,#3a0000,#991b1b,#dc2626); }
+    .b6  { background: linear-gradient(135deg,#0a2a2a,#134e4a,#0d9488); }
+    .b7  { background: linear-gradient(135deg,#2a002a,#86198f,#c026d3); }
+    .b8  { background: linear-gradient(135deg,#2a1500,#78350f,#b45309); }
+    .b9  { background: linear-gradient(135deg,#001a3a,#1e3a8a,#6366f1); }
+    .b10 { background: linear-gradient(135deg,#0a001a,#3b0764,#7e22ce); }
+
+    .card-body { padding: 24px 26px 28px; }
+
+    .q-number {
+      font-size: 11px;
+      font-weight: 800;
+      color: #a78bfa;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .q-text {
+      font-size: 21px;
+      font-weight: 800;
+      color: white;
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .opt-btn {
+      padding: 13px 14px;
+      background: rgba(255,255,255,0.07);
+      border: 2px solid rgba(180,150,255,0.18);
+      border-radius: 14px;
+      color: rgba(230,220,255,0.9);
+      font-family: 'Nunito', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.17s ease;
+      text-align: left;
+      line-height: 1.35;
+    }
+    .opt-btn:hover:not(:disabled) {
+      background: rgba(124,58,237,0.28);
+      border-color: rgba(167,139,250,0.55);
+      transform: translateY(-2px);
+    }
+    .opt-btn:disabled { cursor: default; }
+    .opt-btn.chosen {
+      background: linear-gradient(135deg,rgba(124,58,237,0.45),rgba(79,70,229,0.45));
+      border-color: #a78bfa;
+      color: #e9d5ff;
+    }
+    .opt-btn.not-chosen {
+      opacity: 0.4;
+    }
+
+    .next-btn {
+      display: none;
+      width: 100%;
+      margin-top: 16px;
+      padding: 15px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      color: white;
+      font-family: 'Nunito', sans-serif;
+      font-size: 17px;
+      font-weight: 900;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 22px rgba(124,58,237,0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .next-btn:hover { transform: scale(1.03); box-shadow: 0 6px 28px rgba(124,58,237,0.6); }
+
+    /* ── RIGHT: Guess panel ── */
+    .guess-panel {
+      position: sticky;
+      top: 24px;
+    }
+
+    .guess-card {
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(14px);
+      border: 2px solid rgba(180,150,255,0.25);
+      border-radius: 24px;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 8px 40px rgba(80,50,200,0.2);
+    }
+
+    .robot-face {
+      font-size: 52px;
+      display: block;
+      animation: bob 3s ease-in-out infinite;
+      margin-bottom: 8px;
+    }
+
+    .guess-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: rgba(180,160,255,0.75);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .guess-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: rgba(210,200,255,0.8);
+      margin-bottom: 14px;
+      min-height: 20px;
+    }
+
+    .age-bubble {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      box-shadow: 0 6px 30px rgba(124,58,237,0.55);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+      transition: transform 0.2s;
+    }
+
+    .age-bubble.pop { animation: bubblePop 0.4s ease; }
+
+    .age-number {
+      font-size: 42px;
+      font-weight: 900;
+      color: white;
+      line-height: 1;
+      transition: all 0.3s ease;
+    }
+
+    .age-unit {
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 1px;
+    }
+
+    .thinking-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(167,139,250,0.6);
+      animation: dotPulse 1.4s ease-in-out infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    .confidence-bar-wrap {
+      margin-top: 12px;
+      text-align: left;
+    }
+    .conf-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(180,160,255,0.7);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .conf-track {
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .conf-fill {
+      height: 100%;
+      background: linear-gradient(90deg,#a78bfa,#60a5fa);
+      border-radius: 10px;
+      transition: width 0.6s ease;
+    }
+
+    .clues-so-far {
+      margin-top: 14px;
+      text-align: left;
+    }
+    .clue-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: rgba(180,160,255,0.65);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+    .clue-item {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(220,210,255,0.75);
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      animation: fadeUp 0.4s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ══════════════════════════════
+       END SCREEN
+    ══════════════════════════════ */
+    #end-screen { display: none; animation: fadeUp 0.7s ease; }
+
+    .end-card {
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(14px);
+      border: 2px solid rgba(180,150,255,0.3);
+      border-radius: 32px;
+      padding: 52px 40px;
+      text-align: center;
+      box-shadow: 0 12px 60px rgba(100,50,255,0.35);
+    }
+
+    .end-robot { font-size: 80px; display: block; animation: bob 2s ease-in-out infinite; margin-bottom: 16px; }
+
+    .end-heading {
+      font-size: 32px;
+      font-weight: 900;
+      background: linear-gradient(90deg, #a78bfa, #60a5fa, #f472b6, #a78bfa);
+      background-size: 250%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 4s linear infinite;
+      margin-bottom: 8px;
+    }
+
+    .end-sub { font-size: 16px; color: rgba(200,190,255,0.75); margin-bottom: 32px; }
+
+    .final-age-display {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(79,70,229,0.3));
+      border: 2px solid rgba(167,139,250,0.4);
+      border-radius: 24px;
+      padding: 28px 48px;
+      margin-bottom: 32px;
+    }
+
+    .final-age-label {
+      font-size: 14px;
+      font-weight: 800;
+      color: rgba(180,160,255,0.8);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .final-age-num {
+      font-size: 86px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+
+    .final-age-unit { font-size: 22px; font-weight: 700; color: rgba(200,190,255,0.7); }
+
+    .verdict-q {
+      font-size: 20px;
+      font-weight: 800;
+      color: rgba(230,220,255,0.9);
+      margin-bottom: 20px;
+    }
+
+    .verdict-btns {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .verdict-btn {
+      padding: 16px 36px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .verdict-yes {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      color: white;
+      box-shadow: 0 6px 24px rgba(22,163,74,0.5);
+    }
+    .verdict-yes:hover { transform: scale(1.07); box-shadow: 0 8px 32px rgba(22,163,74,0.7); }
+    .verdict-no {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      color: white;
+      box-shadow: 0 6px 24px rgba(220,38,38,0.5);
+    }
+    .verdict-no:hover { transform: scale(1.07); box-shadow: 0 8px 32px rgba(220,38,38,0.7); }
+
+    /* Reaction message */
+    .reaction-msg {
+      display: none;
+      margin-top: 28px;
+      padding: 20px 28px;
+      border-radius: 20px;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.5;
+      animation: popIn 0.4s ease;
+    }
+    .reaction-msg.yay {
+      background: linear-gradient(135deg,rgba(22,163,74,0.25),rgba(21,128,61,0.3));
+      border: 2px solid rgba(34,197,94,0.45);
+      color: #bbf7d0;
+    }
+    .reaction-msg.nope {
+      background: linear-gradient(135deg,rgba(124,58,237,0.25),rgba(79,70,229,0.25));
+      border: 2px solid rgba(167,139,250,0.4);
+      color: #ddd6fe;
+    }
+
+    .play-again-btn {
+      display: none;
+      margin-top: 24px;
+      padding: 16px 52px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      color: white;
+      font-family: 'Nunito', sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 28px rgba(124,58,237,0.55);
+      transition: transform 0.15s;
+    }
+    .play-again-btn:hover { transform: scale(1.05); }
+
+    /* ══════════════════════════════
+       ANIMATIONS
+    ══════════════════════════════ */
+    @keyframes fadeUp   { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes popIn    { from{opacity:0;transform:scale(0.88)} to{opacity:1;transform:scale(1)} }
+    @keyframes shimmer  { from{background-position:0% 50%} to{background-position:250% 50%} }
+    @keyframes bob      { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    @keyframes dotPulse { 0%,80%,100%{transform:scale(1);opacity:0.6} 40%{transform:scale(1.4);opacity:1} }
+    @keyframes bubblePop {
+      0%  { transform:scale(1); }
+      30% { transform:scale(1.25); }
+      60% { transform:scale(0.92); }
+      100%{ transform:scale(1); }
+    }
+    @keyframes numFlip {
+      0%   { opacity:0; transform:translateY(-12px); }
+      100% { opacity:1; transform:translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- ── TITLE SCREEN ── -->
+  <div id="title-screen">
+    <div class="title-card">
+      <span class="robot-big">🤖</span>
+      <div class="title-heading">Can I Guess<br>Your Age?</div>
+      <p class="title-sub">
+        I'm <strong>Robo-Guesser 3000</strong> and I think I can figure out<br>
+        your age using just <strong>10 fun questions</strong>!<br>
+        No cheating — I won't ask directly! 😄
+      </p>
+      <button class="start-btn" onclick="startGame()">🚀 Let's Go!</button>
+    </div>
+  </div>
+
+  <!-- ── GAME SCREEN ── -->
+  <div id="game-screen">
+    <div class="game-layout">
+
+      <!-- LEFT: Question -->
+      <div class="question-area">
+        <div class="top-bar">
+          <span class="q-label" id="q-label">Question 1 of 10</span>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="question-card" id="question-card">
+          <div class="card-banner" id="card-banner">
+            <span id="card-emoji"></span>
+            <span class="banner-tag" id="banner-tag"></span>
+          </div>
+          <div class="card-body">
+            <div class="q-number" id="q-number"></div>
+            <div class="q-text" id="q-text"></div>
+            <div class="options-grid" id="options-grid"></div>
+            <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question ➡️</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Guess panel -->
+      <div class="guess-panel">
+        <div class="guess-card">
+          <span class="robot-face" id="robot-face">🤔</span>
+          <div class="guess-title">My Guess</div>
+          <div class="guess-label" id="guess-label">Hmm, give me a clue…</div>
+          <div class="age-bubble" id="age-bubble">
+            <div class="age-number" id="age-number">?</div>
+            <div class="age-unit" id="age-unit"></div>
+          </div>
+          <div class="thinking-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+          <div class="confidence-bar-wrap">
+            <div class="conf-label">
+              <span>CONFIDENCE</span>
+              <span id="conf-pct">0%</span>
+            </div>
+            <div class="conf-track">
+              <div class="conf-fill" id="conf-fill" style="width:0%"></div>
+            </div>
+          </div>
+          <div class="clues-so-far" id="clues-so-far" style="display:none">
+            <div class="clue-title">🔍 My clues</div>
+            <div id="clues-list"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── END SCREEN ── -->
+  <div id="end-screen">
+    <div class="end-card">
+      <span class="end-robot" id="end-robot">🤖</span>
+      <div class="end-heading" id="end-heading">Drum roll please…</div>
+      <div class="end-sub" id="end-sub">After all those clues, my final answer is:</div>
+      <div class="final-age-display">
+        <div class="final-age-label">I think you are</div>
+        <div class="final-age-num" id="final-age-num">?</div>
+        <div class="final-age-unit">years old!</div>
+      </div>
+      <div class="verdict-q">Am I right? 🎯</div>
+      <div class="verdict-btns">
+        <button class="verdict-btn verdict-yes" onclick="verdict(true)">✅ YES! Spot on!</button>
+        <button class="verdict-btn verdict-no"  onclick="verdict(false)">❌ Nope, try again!</button>
+      </div>
+      <div class="reaction-msg" id="reaction-msg"></div>
+      <button class="play-again-btn" id="play-again-btn" onclick="resetGame()">🔄 Play Again!</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── QUESTION DATA ──
+  // Each option has an ageHint (what age this answer suggests)
+  // and a clue emoji + short text for the clue panel
+  const questions = [
+    {
+      text: "What's your favourite food? 🍴",
+      emoji: "🍕",
+      tag: "Food Vibes",
+      banner: "b1",
+      options: [
+        { text: "🧀 Mac & Cheese or chicken nuggets", ageHint: 9,  clue: "🧀 Mac & cheese fan" },
+        { text: "🍕 Pizza or burgers",               ageHint: 14, clue: "🍕 Pizza lover" },
+        { text: "🍣 Sushi or fancy stuff",            ageHint: 26, clue: "🍣 Fancy taste" },
+        { text: "🥑 Avocado toast or salads",         ageHint: 30, clue: "🥑 Health food fan" },
+      ]
+    },
+    {
+      text: "How do you watch your favourite shows? 📺",
+      emoji: "📱",
+      tag: "Screen Time",
+      banner: "b2",
+      options: [
+        { text: "🍭 On a tablet, with my parents",    ageHint: 8,  clue: "🍭 Watched with parents" },
+        { text: "📱 YouTube / TikTok all the way!",   ageHint: 13, clue: "📱 YouTube/TikTok watcher" },
+        { text: "📺 Netflix & streaming services",    ageHint: 22, clue: "📺 Streaming fan" },
+        { text: "📡 Regular cable TV",                ageHint: 42, clue: "📡 Cable TV watcher" },
+      ]
+    },
+    {
+      text: "What would you do with a surprise ₹1000? 💸",
+      emoji: "💰",
+      tag: "Money Moves",
+      banner: "b3",
+      options: [
+        { text: "🍬 Buy ALL the candy & toys!",       ageHint: 8,  clue: "🍬 Spends on candy" },
+        { text: "🎮 New game or cool gadget",         ageHint: 13, clue: "🎮 Buys games" },
+        { text: "👗 Shopping for clothes",            ageHint: 20, clue: "👗 Spends on fashion" },
+        { text: "💳 Save it or pay something off",    ageHint: 38, clue: "💳 Sensible saver" },
+      ]
+    },
+    {
+      text: "Pick your favourite rainy-day activity! 🌧️",
+      emoji: "☔",
+      tag: "Rainy Days",
+      banner: "b4",
+      options: [
+        { text: "🏠 Build the ultimate blanket fort!",ageHint: 9,  clue: "🏠 Blanket fort builder" },
+        { text: "🎮 Game until my eyes go square",    ageHint: 14, clue: "🎮 Marathon gamer" },
+        { text: "🎬 Binge a whole TV series",         ageHint: 23, clue: "🎬 Binge watcher" },
+        { text: "📚 Read or catch up on things",      ageHint: 38, clue: "📚 Reader/catch-up person" },
+      ]
+    },
+    {
+      text: "How do you get to school or work? 🚗",
+      emoji: "🚌",
+      tag: "Getting Around",
+      banner: "b5",
+      options: [
+        { text: "🚗 Mum or Dad drives me",            ageHint: 9,  clue: "🚗 Driven by parents" },
+        { text: "🚌 School bus or walk",              ageHint: 13, clue: "🚌 School bus rider" },
+        { text: "🚘 I drive myself!",                  ageHint: 22, clue: "🚘 Has a driving licence" },
+        { text: "🏠 Work from home / retired",        ageHint: 45, clue: "🏠 Works from home" },
+      ]
+    },
+    {
+      text: "What's your bedtime like on a school night? 😴",
+      emoji: "🌙",
+      tag: "Bedtime",
+      banner: "b6",
+      options: [
+        { text: "🌟 Around 8pm — I need my sleep!",  ageHint: 8,  clue: "🌟 8pm bedtime" },
+        { text: "🦉 Midnight owl, way too late",      ageHint: 15, clue: "🦉 Midnight bedtime" },
+        { text: "🤷 Whenever I want!",                ageHint: 22, clue: "🤷 No set bedtime" },
+        { text: "😩 I wish I could sleep MORE",       ageHint: 38, clue: "😩 Always tired" },
+      ]
+    },
+    {
+      text: "What's your dream birthday present? 🎁",
+      emoji: "🎂",
+      tag: "Dream Gift",
+      banner: "b7",
+      options: [
+        { text: "🧸 A cool toy or stuffed animal!",   ageHint: 8,  clue: "🧸 Wants a toy" },
+        { text: "🎮 The latest games console",        ageHint: 13, clue: "🎮 Wants a console" },
+        { text: "✈️ A holiday or adventure trip",     ageHint: 24, clue: "✈️ Wants a trip" },
+        { text: "💸 Cash or gift cards, please!",     ageHint: 32, clue: "💸 Wants cash" },
+      ]
+    },
+    {
+      text: "How do you feel about homework or chores? 📝",
+      emoji: "😤",
+      tag: "Responsibilities",
+      banner: "b8",
+      options: [
+        { text: "😭 It's so unfair, I hate it!",      ageHint: 9,  clue: "😭 Hates homework" },
+        { text: "😤 I do it, but I'm not happy",      ageHint: 14, clue: "😤 Reluctant worker" },
+        { text: "🙄 It's fine, just part of life",    ageHint: 22, clue: "🙄 Accepts responsibilities" },
+        { text: "📋 I make lists and get it done!",   ageHint: 36, clue: "📋 Super organised" },
+      ]
+    },
+    {
+      text: "Which of these feels most like you? ✨",
+      emoji: "🪞",
+      tag: "Personality",
+      banner: "b9",
+      options: [
+        { text: "🌈 I love playing pretend & crafts", ageHint: 8,  clue: "🌈 Loves creative play" },
+        { text: "😎 Hanging with friends is my thing",ageHint: 15, clue: "😎 Social butterfly" },
+        { text: "💼 I'm figuring out my future",      ageHint: 22, clue: "💼 Future planner" },
+        { text: "🏡 I just want peace & quiet!",      ageHint: 40, clue: "🏡 Loves quiet time" },
+      ]
+    },
+    {
+      text: "What's your dream holiday destination? 🌍",
+      emoji: "🗺️",
+      tag: "Dream Holiday",
+      banner: "b10",
+      options: [
+        { text: "🏰 Disney World — PLEASE!",          ageHint: 9,  clue: "🏰 Disney dreamer" },
+        { text: "🏕️ Summer camp adventure",           ageHint: 13, clue: "🏕️ Camp adventurer" },
+        { text: "🎒 Backpacking Europe",              ageHint: 22, clue: "🎒 Europe backpacker" },
+        { text: "🏖️ Relaxing luxury beach resort",    ageHint: 40, clue: "🏖️ Luxury beach lover" },
+      ]
+    }
+  ];
+
+  const guessMessages = [
+    "Hmm, give me a clue…",
+    "Interesting! 🤔 Processing…",
+    "Ooh, getting somewhere! 🔍",
+    "Clues are coming in! 📡",
+    "My brain is buzzing! 🧠",
+    "Almost cracked it! ⚡",
+    "So close now! 🎯",
+    "Nearly there! 🔥",
+    "I'm pretty confident now! 💡",
+    "I've figured it out!! 🎉",
+    "FINAL ANSWER! 🤖✨"
+  ];
+
+  const robotFaces = ["🤔","🧐","😮","🤯","😏","🤓","😎","🤩","🥳"];
+
+  let currentQ = 0;
+  let ageHints = [];
+  let clueItems = [];
+
+  function startGame() {
+    document.getElementById('title-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'block';
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const q = questions[currentQ];
+    const total = questions.length;
+
+    // Progress
+    document.getElementById('q-label').textContent = `Question ${currentQ + 1} of ${total}`;
+    document.getElementById('progress-fill').style.width = `${(currentQ / total) * 100}%`;
+
+    // Banner
+    const banner = document.getElementById('card-banner');
+    banner.className = `card-banner ${q.banner}`;
+    document.getElementById('card-emoji').textContent = q.emoji;
+    document.getElementById('banner-tag').textContent = q.tag;
+
+    // Question text
+    document.getElementById('q-number').textContent = `✦ QUESTION ${currentQ + 1} OF ${total} ✦`;
+    document.getElementById('q-text').textContent = q.text;
+
+    // Options
+    const grid = document.getElementById('options-grid');
+    grid.innerHTML = '';
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.textContent = opt.text;
+      btn.onclick = () => pickAnswer(i);
+      grid.appendChild(btn);
+    });
+
+    // Next btn
+    const nb = document.getElementById('next-btn');
+    nb.style.display = 'none';
+    nb.textContent = currentQ < questions.length - 1 ? 'Next Question ➡️' : '🔮 Reveal My Age!';
+
+    // Card animation
+    const card = document.getElementById('question-card');
+    card.style.animation = 'none';
+    void card.offsetWidth;
+    card.style.animation = 'fadeUp 0.45s ease';
+  }
+
+  function pickAnswer(index) {
+    const q = questions[currentQ];
+    const chosen = q.options[index];
+    const btns = document.querySelectorAll('.opt-btn');
+
+    btns.forEach((b, i) => {
+      b.disabled = true;
+      b.classList.add(i === index ? 'chosen' : 'not-chosen');
+    });
+
+    // Record hint
+    ageHints.push(chosen.ageHint);
+    clueItems.push(chosen.clue);
+
+    // Update guess panel
+    updateGuessPanel();
+
+    // Show next btn
+    document.getElementById('next-btn').style.display = 'block';
+  }
+
+  function updateGuessPanel() {
+    const n = ageHints.length;
+    const avg = ageHints.reduce((a, b) => a + b, 0) / n;
+    const guess = Math.round(avg);
+
+    // Update number with animation
+    const numEl = document.getElementById('age-number');
+    const bubble = document.getElementById('age-bubble');
+    numEl.style.animation = 'none';
+    void numEl.offsetWidth;
+    numEl.textContent = guess;
+    numEl.style.animation = 'numFlip 0.4s ease';
+    document.getElementById('age-unit').textContent = 'yrs';
+
+    bubble.classList.remove('pop');
+    void bubble.offsetWidth;
+    bubble.classList.add('pop');
+
+    // Robot face cycles
+    const faceIndex = Math.min(n - 1, robotFaces.length - 1);
+    document.getElementById('robot-face').textContent = robotFaces[faceIndex];
+
+    // Guess label
+    document.getElementById('guess-label').textContent = guessMessages[n] || guessMessages[guessMessages.length - 1];
+
+    // Confidence bar
+    const conf = Math.min(Math.round((n / questions.length) * 100), 100);
+    document.getElementById('conf-fill').style.width = conf + '%';
+    document.getElementById('conf-pct').textContent = conf + '%';
+
+    // Clue list
+    const cluesSection = document.getElementById('clues-so-far');
+    const cluesList = document.getElementById('clues-list');
+    cluesSection.style.display = 'block';
+    cluesList.innerHTML = '';
+    // Show last 5 clues
+    const recent = clueItems.slice(-5);
+    recent.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'clue-item';
+      div.textContent = c;
+      cluesList.prepend(div);
+    });
+  }
+
+  function nextQuestion() {
+    currentQ++;
+    if (currentQ < questions.length) {
+      renderQuestion();
+    } else {
+      showEndScreen();
+    }
+  }
+
+  function showEndScreen() {
+    document.getElementById('game-screen').style.display = 'none';
+    const end = document.getElementById('end-screen');
+    end.style.display = 'block';
+
+    const avg = ageHints.reduce((a, b) => a + b, 0) / ageHints.length;
+    const finalGuess = Math.round(avg);
+    document.getElementById('final-age-num').textContent = finalGuess;
+
+    // Reset verdict UI
+    document.getElementById('reaction-msg').style.display = 'none';
+    document.getElementById('play-again-btn').style.display = 'none';
+  }
+
+  function verdict(correct) {
+    const msg = document.getElementById('reaction-msg');
+    const finalGuess = parseInt(document.getElementById('final-age-num').textContent);
+    msg.style.display = 'block';
+
+    if (correct) {
+      msg.className = 'reaction-msg yay';
+      msg.innerHTML = `🎉 <strong>WOOHOO! I got it right!</strong><br>I knew it! ${finalGuess} years old — my robot brain is AMAZING! 🤖✨`;
+      document.getElementById('end-robot').textContent = '🥳';
+    } else {
+      msg.className = 'reaction-msg nope';
+      msg.innerHTML = `😅 <strong>Oops! My circuits got confused!</strong><br>But hey, even the smartest robots make mistakes sometimes! 🤖💙 Play again and I'll try harder!`;
+      document.getElementById('end-robot').textContent = '😅';
+    }
+
+    // Disable verdict buttons after choosing
+    document.querySelectorAll('.verdict-btn').forEach(b => {
+      b.disabled = true;
+      b.style.opacity = '0.5';
+      b.style.cursor = 'default';
+    });
+
+    document.getElementById('play-again-btn').style.display = 'inline-block';
+  }
+
+  function resetGame() {
+    currentQ = 0;
+    ageHints = [];
+    clueItems = [];
+
+    // Reset guess panel
+    document.getElementById('age-number').textContent = '?';
+    document.getElementById('age-unit').textContent = '';
+    document.getElementById('guess-label').textContent = 'Hmm, give me a clue…';
+    document.getElementById('robot-face').textContent = '🤔';
+    document.getElementById('conf-fill').style.width = '0%';
+    document.getElementById('conf-pct').textContent = '0%';
+    document.getElementById('clues-so-far').style.display = 'none';
+    document.getElementById('clues-list').innerHTML = '';
+
+    // Reset verdict buttons
+    document.querySelectorAll('.verdict-btn').forEach(b => {
+      b.disabled = false;
+      b.style.opacity = '1';
+      b.style.cursor = 'pointer';
+    });
+
+    document.getElementById('end-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'block';
+    renderQuestion();
+  }
+</script>
+</body>
+</html>
