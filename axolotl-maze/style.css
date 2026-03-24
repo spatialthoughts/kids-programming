@@ -1,0 +1,388 @@
+/* ===================================================
+   AXOLOTL CAVE MAZE - style.css
+   This file controls how everything LOOKS.
+   Change colors and sizes here to customize the game!
+   =================================================== */
+
+
+/* ---------------------
+   RESET AND BASE STYLES
+   Makes sure all browsers show things the same way
+   --------------------- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    /* Dark cave background color */
+    background-color: #0e1a0e;
+    color: #d0e8d0;
+
+    /* Blocky, pixel-like font */
+    font-family: 'Courier New', Courier, monospace;
+    text-align: center;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+
+/* ---------------------
+   TEXT STYLES
+   --------------------- */
+h1 {
+    /* Glowing green title - like bioluminescent cave plants */
+    color: #6be86b;
+    font-size: 32px;
+    letter-spacing: 2px;
+    text-shadow: 0 0 12px #2a8a2a, 0 0 24px #1a6a1a;
+    margin-bottom: 8px;
+}
+
+p {
+    color: #90c890;
+    font-size: 15px;
+    margin: 6px 0;
+}
+
+.subtitle {
+    color: #7ab87a;
+    font-size: 17px;
+    margin: 10px 0;
+}
+
+strong {
+    color: #6be86b;
+}
+
+.exit-label {
+    color: #3abcd4;
+    text-shadow: 0 0 6px #1a8caa;
+}
+
+
+/* ======================= */
+/* SELECTION SCREEN STYLES */
+/* ======================= */
+
+#selection-screen {
+    /* This div is shown first when the page loads */
+    display: block;
+    max-width: 680px;
+    margin: 20px auto;
+    padding: 35px 30px;
+
+    /* Dark cave stone background */
+    background-color: #111d11;
+    border: 3px solid #2e5c2e;
+
+    /* Sharp corners like Minecraft blocks */
+    border-radius: 2px;
+
+    /* Soft green glow around the panel */
+    box-shadow: 0 0 30px rgba(40, 120, 40, 0.3);
+}
+
+/* The row of three axolotl choices */
+#axolotl-choices {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+}
+
+/* Each individual axolotl card */
+.axolotl-choice {
+    cursor: pointer;
+    padding: 18px 15px;
+    background-color: #192619;
+    border: 3px solid #2e5c2e;
+    border-radius: 2px;
+    width: 160px;
+
+    /* Smooth color transition on hover */
+    transition: background-color 0.1s, border-color 0.1s, transform 0.1s;
+}
+
+/* When the mouse hovers over a choice, it lights up */
+.axolotl-choice:hover {
+    background-color: #223a22;
+    border-color: #6be86b;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(40, 140, 40, 0.4);
+}
+
+.axolotl-name {
+    margin-top: 10px;
+    font-size: 19px;
+    font-weight: bold;
+    color: #6be86b;
+}
+
+.axolotl-desc {
+    font-size: 13px;
+    color: #60a060;
+    margin-top: 4px;
+}
+
+
+/* ==================== */
+/* GAME SCREEN STYLES   */
+/* ==================== */
+
+#game-screen {
+    /* This is hidden until a player chooses their axolotl */
+    display: none;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Top bar with title and control buttons */
+#top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    background-color: #111d11;
+    border: 2px solid #2e5c2e;
+    border-radius: 2px;
+}
+
+#top-bar h1 {
+    font-size: 22px;
+    margin: 0;
+}
+
+#top-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+
+/* ---------------------
+   BUTTON STYLES
+   --------------------- */
+button {
+    background-color: #1e4a1e;
+    color: #6be86b;
+    border: 2px solid #2e5c2e;
+    padding: 8px 18px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 2px;
+    letter-spacing: 1px;
+    transition: background-color 0.1s, border-color 0.1s;
+}
+
+button:hover {
+    background-color: #2a6a2a;
+    border-color: #6be86b;
+}
+
+button:active {
+    background-color: #1a4a1a;
+}
+
+
+/* ---------------------
+   THE MAZE GRID
+   This is the main game area - a 10x10 grid of squares
+   Each square is 58px wide and tall
+   --------------------- */
+#maze-container {
+    display: inline-block;
+    border: 4px solid #2e5c2e;
+    box-shadow: 0 0 25px rgba(40, 140, 40, 0.4),
+                inset 0 0 10px rgba(0, 0, 0, 0.5);
+    line-height: 0; /* Removes gap between cells */
+}
+
+#maze-grid {
+    display: grid;
+
+    /* 10 columns, each 58px wide */
+    grid-template-columns: repeat(10, 58px);
+
+    /* 10 rows, each 58px tall */
+    grid-template-rows: repeat(10, 58px);
+
+    /* No gaps between cells - flush like Minecraft blocks */
+    gap: 0;
+}
+
+/* Every cell in the maze */
+.cell {
+    width: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+
+/* ---------------------
+   CELL TYPES
+   Change these to make the maze look different!
+   --------------------- */
+
+/* WALL cells - dark stone blocks you cannot walk through */
+.wall {
+    background-color: #252525;
+
+    /* Adds a subtle grid texture to make it look like stone */
+    background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 14px 14px;
+    background-position: 2px 2px;
+
+    /* 3D block edges, like Minecraft */
+    box-shadow:
+        inset 2px 2px 0 rgba(255,255,255,0.08),
+        inset -2px -2px 0 rgba(0,0,0,0.4);
+
+    border: 1px solid #181818;
+}
+
+/* PATH cells - mossy cave floor you can walk on */
+.path {
+    background-color: #2a4228;
+
+    /* Subtle mossy spots */
+    background-image:
+        radial-gradient(circle at 25% 35%, rgba(80,130,60,0.25) 0%, transparent 55%),
+        radial-gradient(circle at 75% 70%, rgba(50,90,40,0.20) 0%, transparent 55%);
+
+    border: 1px solid #1e3020;
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.3);
+}
+
+/* START cell - where the axolotl begins */
+.start {
+    background-color: #2a5c18;
+    background-image: radial-gradient(circle at 50% 50%, #3a8c22, #1e4a10);
+    border: 1px solid #1a3c0c;
+    box-shadow: inset 0 0 12px rgba(60,140,30,0.4);
+}
+
+/* END cell - the exit! It glows blue like a crystal cave pool */
+.end {
+    background-color: #0e3d5c;
+    background-image: radial-gradient(circle at 50% 40%, #2a9cca, #083050);
+    border: 1px solid #082840;
+
+    /* Pulsing glow animation - this makes it look alive! */
+    animation: crystal-pulse 1.8s ease-in-out infinite alternate;
+}
+
+/* The glowing animation for the exit cell */
+@keyframes crystal-pulse {
+    from {
+        box-shadow: 0 0 8px rgba(42,156,202,0.5),
+                    inset 0 0 8px rgba(42,156,202,0.2);
+    }
+    to {
+        box-shadow: 0 0 22px rgba(42,156,202,0.9),
+                    inset 0 0 16px rgba(42,156,202,0.5);
+    }
+}
+
+/* EXIT LABEL - the word "EXIT" shown on the end cell */
+.exit-text {
+    color: #7adcf0;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 0 0 6px #2a9cca;
+    position: absolute;
+    bottom: 6px;
+    left: 0;
+    right: 0;
+    text-align: center;
+}
+
+/* PLAYER cell - the cell where the axolotl currently is */
+.player-cell {
+    background-color: #2a4228;
+    background-image:
+        radial-gradient(circle at 25% 35%, rgba(80,130,60,0.25) 0%, transparent 55%);
+    border: 1px solid #1e3020;
+    padding: 2px;
+}
+
+
+/* ---------------------
+   WIN MESSAGE
+   Shown when the player reaches the exit
+   --------------------- */
+#win-message {
+    display: none; /* Hidden until the player wins */
+    margin: 16px auto;
+    padding: 20px 30px;
+    max-width: 580px;
+    background-color: #112211;
+    border: 3px solid #6be86b;
+    color: #6be86b;
+    font-size: 22px;
+    letter-spacing: 1px;
+
+    /* Flashing border animation */
+    animation: win-flash 0.7s ease-in-out infinite alternate;
+}
+
+@keyframes win-flash {
+    from { border-color: #6be86b; color: #6be86b; }
+    to   { border-color: #3abcd4; color: #3abcd4; }
+}
+
+
+/* ---------------------
+   INSTRUCTIONS PANEL
+   --------------------- */
+#instructions {
+    margin: 14px auto;
+    padding: 12px 20px;
+    max-width: 580px;
+    background-color: #111d11;
+    border: 2px solid #2e5c2e;
+    border-radius: 2px;
+}
+
+#instructions p {
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+
+/* ---------------------
+   ON-SCREEN ARROW BUTTONS
+   For players using a touch screen or mouse
+   --------------------- */
+#arrow-buttons {
+    margin: 14px auto;
+    display: inline-block;
+}
+
+#arrow-row-top {
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+#arrow-row-middle {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+.arrow-btn {
+    width: 70px;
+    height: 46px;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}

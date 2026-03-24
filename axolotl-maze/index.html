@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- This file is the main page of the Axolotl Cave Maze game -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axolotl Cave Maze</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ===================== -->
+    <!-- SELECTION SCREEN      -->
+    <!-- This shows first so   -->
+    <!-- the player can pick   -->
+    <!-- their axolotl         -->
+    <!-- ===================== -->
+    <div id="selection-screen">
+        <h1>Axolotl Cave Maze</h1>
+        <p class="subtitle">Help your axolotl escape the lush cave!</p>
+        <p class="subtitle">Choose your axolotl to begin:</p>
+
+        <div id="axolotl-choices">
+
+            <!-- Choice 1: Pink axolotl -->
+            <div class="axolotl-choice" onclick="selectAxolotl(0)">
+                <canvas id="axolotl-preview-0" width="110" height="110"></canvas>
+                <p class="axolotl-name">Pinky</p>
+                <p class="axolotl-desc">Brave and bold</p>
+            </div>
+
+            <!-- Choice 2: Blue axolotl -->
+            <div class="axolotl-choice" onclick="selectAxolotl(1)">
+                <canvas id="axolotl-preview-1" width="110" height="110"></canvas>
+                <p class="axolotl-name">Bluebell</p>
+                <p class="axolotl-desc">Swift and clever</p>
+            </div>
+
+            <!-- Choice 3: Golden axolotl -->
+            <div class="axolotl-choice" onclick="selectAxolotl(2)">
+                <canvas id="axolotl-preview-2" width="110" height="110"></canvas>
+                <p class="axolotl-name">Goldie</p>
+                <p class="axolotl-desc">Wise and lucky</p>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ===================== -->
+    <!-- GAME SCREEN           -->
+    <!-- This shows when the   -->
+    <!-- game is being played  -->
+    <!-- ===================== -->
+    <div id="game-screen">
+
+        <!-- Top bar with title and buttons -->
+        <div id="top-bar">
+            <h1>Axolotl Cave Maze</h1>
+            <div id="top-buttons">
+                <button onclick="startNewGame()">New Maze</button>
+                <button onclick="goToSelection()">Change Axolotl</button>
+            </div>
+        </div>
+
+        <!-- The maze grid is placed here by game.js -->
+        <div id="maze-container">
+            <div id="maze-grid"></div>
+        </div>
+
+        <!-- Win message (hidden until player reaches the exit) -->
+        <div id="win-message">
+            You found the exit! Well done!
+            <br>
+            <button onclick="startNewGame()" style="margin-top: 15px;">Play Again</button>
+        </div>
+
+        <!-- Instructions for the player -->
+        <div id="instructions">
+            <p>Use the <strong>arrow keys</strong> to move your axolotl</p>
+            <p>Find the <span class="exit-label">glowing blue exit</span> to win!</p>
+        </div>
+
+        <!-- On-screen arrow buttons (useful for touch screens) -->
+        <div id="arrow-buttons">
+            <div id="arrow-row-top">
+                <button class="arrow-btn" onclick="movePlayer(-1, 0)">UP</button>
+            </div>
+            <div id="arrow-row-middle">
+                <button class="arrow-btn" onclick="movePlayer(0, -1)">LEFT</button>
+                <button class="arrow-btn" onclick="movePlayer(1, 0)">DOWN</button>
+                <button class="arrow-btn" onclick="movePlayer(0, 1)">RIGHT</button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Load the game code last so the page is ready first -->
+    <script src="game.js"></script>
+
+</body>
+</html>
