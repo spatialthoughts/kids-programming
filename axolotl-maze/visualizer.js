@@ -526,8 +526,8 @@ function renderVizFrame(frameIndex) {
         }
     }
 
-    // Render the maze with viz overlays (no player sprite)
-    renderMaze(overlayMap, true, false);
+    // Render the viz panel's own maze grid with algorithm overlays
+    renderMaze(overlayMap, true, false, 'viz-maze-grid');
 
     // Update UI counters and message
     document.getElementById('viz-step-count').textContent =

@@ -10,7 +10,14 @@
 // You can change these to make the game different!
 // ---------------------
 var GRID_SIZE = 10;    // How many cells wide and tall the maze is (10x10)
-var CELL_SIZE = 54;    // How big each cell is when drawing the axolotl (pixels)
+
+// getCellSize reads the --cell CSS variable so the axolotl canvas
+// is always drawn at the right size for the current screen width.
+function getCellSize() {
+    var val = getComputedStyle(document.documentElement)
+                  .getPropertyValue('--cell').trim();
+    return parseInt(val) || 56;
+}
 
 
 // ---------------------
@@ -331,21 +338,25 @@ function drawAxolotl(canvas, axolotlIndex, size) {
 // Builds the visual grid in the browser
 // ===================================================
 
-// renderMaze draws the maze into #maze-grid.
+// renderMaze draws the maze into the element with id=targetId.
 //
-// overlayMap (optional): an object where keys are "row,col" strings
-// and values are CSS data-overlay values ('optimal') or
-// data-viz values ('frontier', 'visited', 'current', 'path').
-// useVizOverlay (optional): if true, the overlay values are put into
-// data-viz; otherwise data-overlay is used.
+// overlayMap  - object keyed "row,col" → overlay class value
+// useVizOverlay - if true, values go into data-viz; else data-overlay
+// showPlayer  - whether to draw the axolotl on the player's cell
+// targetId    - id of the grid div to render into (default 'maze-grid')
 //
-function renderMaze(overlayMap, useVizOverlay, showPlayer) {
-    overlayMap   = overlayMap   || {};
+function renderMaze(overlayMap, useVizOverlay, showPlayer, targetId) {
+    overlayMap    = overlayMap   || {};
     useVizOverlay = !!useVizOverlay;
-    showPlayer   = (showPlayer === undefined) ? true : showPlayer;
+    showPlayer    = (showPlayer === undefined) ? true : showPlayer;
+    targetId      = targetId || 'maze-grid';
 
-    var grid = document.getElementById('maze-grid');
+    var grid = document.getElementById(targetId);
+    if (!grid) return;
     grid.innerHTML = '';
+
+    // Canvas size for the axolotl: cell size minus padding
+    var canvasSize = getCellSize() - 4;
 
     for (var row = 0; row < GRID_SIZE; row++) {
         for (var col = 0; col < GRID_SIZE; col++) {
@@ -358,9 +369,9 @@ function renderMaze(overlayMap, useVizOverlay, showPlayer) {
             if (showPlayer && row === playerRow && col === playerCol) {
                 cell.className += ' player-cell';
                 var canvas    = document.createElement('canvas');
-                canvas.width  = CELL_SIZE;
-                canvas.height = CELL_SIZE;
-                drawAxolotl(canvas, selectedAxolotl, CELL_SIZE);
+                canvas.width  = canvasSize;
+                canvas.height = canvasSize;
+                drawAxolotl(canvas, selectedAxolotl, canvasSize);
                 cell.appendChild(canvas);
 
             } else {
@@ -418,13 +429,13 @@ function movePlayer(rowChange, colChange) {
         // Did the player reach the exit?
         if (maze[playerRow][playerCol] === 'end') {
             hasWon = true;
-            renderMaze({}, false, true);
+            renderMaze({}, false, true, 'maze-grid');
             // Wait a moment then show the win screen
             setTimeout(onPlayerWin, 400);
             return;
         }
 
-        renderMaze({}, false, true);
+        renderMaze({}, false, true, 'maze-grid');
     }
 }
 
@@ -499,8 +510,8 @@ function onPlayerWin() {
         overlayMap[key] = 'optimal';
     }
 
-    // Re-render the maze WITHOUT the player, but WITH the gold path
-    renderMaze(overlayMap, false, false);
+    // Render the win panel's own maze grid with the gold path overlay
+    renderMaze(overlayMap, false, false, 'win-maze-grid');
 
     // Fill in the stats
     document.getElementById('stat-player-moves').textContent = playerMoveCount;
@@ -542,12 +553,10 @@ function showPanel(panelId) {
     }
 }
 
-// Show the algorithm viz panel and re-render a clean maze
+// Show the algorithm viz panel and render a clean maze into it
 function showVizPanel() {
     showPanel('viz-panel');
-    // Show a clean maze (no overlay, no player) ready for the viz
-    renderMaze({}, false, false);
-    // Reset viz state (defined in visualizer.js)
+    renderMaze({}, false, false, 'viz-maze-grid');
     resetViz();
 }
 
@@ -557,13 +566,13 @@ function backToWinPanel() {
     vizPause();
     showPanel('win-panel');
 
-    // Rebuild the gold path overlay map and re-render
+    // Rebuild the gold path overlay map and re-render the win maze
     var overlayMap = {};
     for (var i = 0; i < shortestPath.length; i++) {
         var key       = shortestPath[i].row + ',' + shortestPath[i].col;
         overlayMap[key] = 'optimal';
     }
-    renderMaze(overlayMap, false, false);
+    renderMaze(overlayMap, false, false, 'win-maze-grid');
 }
 
 // Go back to the axolotl selection screen
@@ -591,7 +600,7 @@ function startNewGame() {
     document.getElementById('move-counter').textContent = 'Moves: 0';
 
     generateMaze();
-    renderMaze({}, false, true);
+    renderMaze({}, false, true, 'maze-grid');
     showPanel('game-panel');
 }
 
