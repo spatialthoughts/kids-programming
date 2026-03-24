@@ -9,95 +9,202 @@
 </head>
 <body>
 
-    <!-- ===================== -->
-    <!-- SELECTION SCREEN      -->
-    <!-- This shows first so   -->
-    <!-- the player can pick   -->
-    <!-- their axolotl         -->
-    <!-- ===================== -->
+    <!-- ============================================================ -->
+    <!-- SCREEN 1: SELECTION SCREEN                                    -->
+    <!-- The first thing the player sees. Pick your axolotl!          -->
+    <!-- ============================================================ -->
     <div id="selection-screen">
         <h1>Axolotl Cave Maze</h1>
         <p class="subtitle">Help your axolotl escape the lush cave!</p>
         <p class="subtitle">Choose your axolotl to begin:</p>
 
         <div id="axolotl-choices">
-
-            <!-- Choice 1: Pink axolotl -->
             <div class="axolotl-choice" onclick="selectAxolotl(0)">
                 <canvas id="axolotl-preview-0" width="110" height="110"></canvas>
                 <p class="axolotl-name">Pinky</p>
                 <p class="axolotl-desc">Brave and bold</p>
             </div>
-
-            <!-- Choice 2: Blue axolotl -->
             <div class="axolotl-choice" onclick="selectAxolotl(1)">
                 <canvas id="axolotl-preview-1" width="110" height="110"></canvas>
                 <p class="axolotl-name">Bluebell</p>
                 <p class="axolotl-desc">Swift and clever</p>
             </div>
-
-            <!-- Choice 3: Golden axolotl -->
             <div class="axolotl-choice" onclick="selectAxolotl(2)">
                 <canvas id="axolotl-preview-2" width="110" height="110"></canvas>
                 <p class="axolotl-name">Goldie</p>
                 <p class="axolotl-desc">Wise and lucky</p>
             </div>
-
         </div>
     </div>
 
 
-    <!-- ===================== -->
-    <!-- GAME SCREEN           -->
-    <!-- This shows when the   -->
-    <!-- game is being played  -->
-    <!-- ===================== -->
-    <div id="game-screen">
+    <!-- ============================================================ -->
+    <!-- SCREEN 2: GAME SCREEN                                        -->
+    <!-- Contains the maze and three swappable panels below it.       -->
+    <!-- Only one panel is visible at a time:                         -->
+    <!--   game-panel  = while the player is playing                  -->
+    <!--   win-panel   = after the player reaches the exit            -->
+    <!--   viz-panel   = during the algorithm demonstration           -->
+    <!-- ============================================================ -->
+    <div id="game-screen" style="display:none">
 
-        <!-- Top bar with title and buttons -->
+        <!-- Top bar: always visible on the game screen -->
         <div id="top-bar">
-            <h1>Axolotl Cave Maze</h1>
+            <h1 id="top-title">Axolotl Cave Maze</h1>
             <div id="top-buttons">
                 <button onclick="startNewGame()">New Maze</button>
                 <button onclick="goToSelection()">Change Axolotl</button>
             </div>
         </div>
 
-        <!-- The maze grid is placed here by game.js -->
+        <!-- The maze grid (shared by all three panels below) -->
         <div id="maze-container">
             <div id="maze-grid"></div>
         </div>
 
-        <!-- Win message (hidden until player reaches the exit) -->
-        <div id="win-message">
-            You found the exit! Well done!
-            <br>
-            <button onclick="startNewGame()" style="margin-top: 15px;">Play Again</button>
-        </div>
 
-        <!-- Instructions for the player -->
-        <div id="instructions">
-            <p>Use the <strong>arrow keys</strong> to move your axolotl</p>
-            <p>Find the <span class="exit-label">glowing blue exit</span> to win!</p>
-        </div>
+        <!-- ======================================================= -->
+        <!-- PANEL A: GAME PANEL                                      -->
+        <!-- Shown while the player is navigating the maze            -->
+        <!-- ======================================================= -->
+        <div id="game-panel">
 
-        <!-- On-screen arrow buttons (useful for touch screens) -->
-        <div id="arrow-buttons">
-            <div id="arrow-row-top">
-                <button class="arrow-btn" onclick="movePlayer(-1, 0)">UP</button>
+            <div id="instructions">
+                <p>Use the <strong>arrow keys</strong> to move your axolotl</p>
+                <p>Find the <span class="exit-label">glowing blue exit</span> to win!</p>
+                <p id="move-counter">Moves: 0</p>
             </div>
-            <div id="arrow-row-middle">
-                <button class="arrow-btn" onclick="movePlayer(0, -1)">LEFT</button>
-                <button class="arrow-btn" onclick="movePlayer(1, 0)">DOWN</button>
-                <button class="arrow-btn" onclick="movePlayer(0, 1)">RIGHT</button>
+
+            <!-- On-screen buttons for touch / mouse players -->
+            <div id="arrow-buttons">
+                <div id="arrow-row-top">
+                    <button class="arrow-btn" onclick="movePlayer(-1, 0)">UP</button>
+                </div>
+                <div id="arrow-row-middle">
+                    <button class="arrow-btn" onclick="movePlayer(0, -1)">LEFT</button>
+                    <button class="arrow-btn" onclick="movePlayer(1, 0)">DOWN</button>
+                    <button class="arrow-btn" onclick="movePlayer(0, 1)">RIGHT</button>
+                </div>
             </div>
-        </div>
 
-    </div>
+        </div><!-- end game-panel -->
 
 
-    <!-- Load the game code last so the page is ready first -->
+        <!-- ======================================================= -->
+        <!-- PANEL B: WIN PANEL                                       -->
+        <!-- Shown after the player reaches the exit.                 -->
+        <!-- Compares the player's moves to the shortest path.        -->
+        <!-- ======================================================= -->
+        <div id="win-panel" style="display:none">
+
+            <div id="win-header">You escaped the cave!</div>
+
+            <!-- Stats comparison: player vs optimal -->
+            <div id="win-stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="stat-player-moves">0</div>
+                    <div class="stat-label">Your moves</div>
+                </div>
+                <div class="stat-divider">vs</div>
+                <div class="stat-box">
+                    <div class="stat-number" id="stat-optimal-moves">0</div>
+                    <div class="stat-label">Shortest possible</div>
+                </div>
+            </div>
+
+            <!-- Rating message (e.g. "Perfect!" or "Nice work!") -->
+            <div id="win-rating"></div>
+
+            <!-- Legend explaining the gold path shown on the maze -->
+            <div id="win-legend">
+                <span class="legend-dot legend-dot-optimal"></span>
+                <span class="legend-text">Gold path = shortest route a computer would take</span>
+            </div>
+
+            <div id="win-buttons">
+                <button onclick="startNewGame()">Play Again</button>
+                <button id="watch-algo-btn" onclick="showVizPanel()">
+                    Watch a Computer Solve It
+                </button>
+            </div>
+
+        </div><!-- end win-panel -->
+
+
+        <!-- ======================================================= -->
+        <!-- PANEL C: VIZ PANEL                                       -->
+        <!-- Shown during the algorithm demonstration.                -->
+        <!-- The player can step through BFS, DFS, or A* frame       -->
+        <!-- by frame and read explanations of what is happening.     -->
+        <!-- ======================================================= -->
+        <div id="viz-panel" style="display:none">
+
+            <!-- Algorithm selection tabs -->
+            <div id="algo-tabs">
+                <button class="algo-tab" id="tab-bfs"   onclick="startViz('bfs')">BFS</button>
+                <button class="algo-tab" id="tab-dfs"   onclick="startViz('dfs')">DFS</button>
+                <button class="algo-tab" id="tab-astar" onclick="startViz('astar')">A*</button>
+            </div>
+
+            <!-- Algorithm name and description -->
+            <div id="algo-info-box">
+                <div id="algo-name">Choose an algorithm above to begin!</div>
+                <div id="algo-description">Each algorithm searches the maze in a different way.</div>
+            </div>
+
+            <!-- Step counter and cells explored -->
+            <div id="viz-stats-bar">
+                <span id="viz-step-count">Step: --</span>
+                <span id="viz-explored-count">Explored: 0 cells</span>
+            </div>
+
+            <!-- The current step's explanation text -->
+            <div id="viz-message">Click a tab above to pick an algorithm and start the demo.</div>
+
+            <!-- Playback controls -->
+            <div id="viz-controls">
+                <button id="viz-prev-btn" onclick="vizStepBack()"    disabled>Prev</button>
+                <button id="viz-play-btn" onclick="vizTogglePlay()"  disabled>Play</button>
+                <button id="viz-next-btn" onclick="vizStepForward()" disabled>Next</button>
+                <div id="speed-wrapper">
+                    <label for="viz-speed">Speed:</label>
+                    <input type="range" id="viz-speed" min="1" max="10" value="5">
+                </div>
+            </div>
+
+            <!-- Color legend for the visualization -->
+            <div id="viz-legend">
+                <div class="legend-item">
+                    <span class="legend-dot" style="background:#e8f060; box-shadow:0 0 6px #c8d020;"></span>
+                    <span>Frontier (next to check)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background:#ffffff; box-shadow:0 0 8px #ffffff;"></span>
+                    <span>Current cell</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background:#2a7a80;"></span>
+                    <span>Already explored</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background:#f0b800; box-shadow:0 0 6px #c09000;"></span>
+                    <span>Path found</span>
+                </div>
+            </div>
+
+            <div id="viz-bottom-buttons">
+                <button onclick="backToWinPanel()">Back to Results</button>
+                <button onclick="startViz(vizAlgorithm)" id="viz-restart-btn" disabled>Restart Demo</button>
+            </div>
+
+        </div><!-- end viz-panel -->
+
+    </div><!-- end game-screen -->
+
+
+    <!-- Load game logic first, then the visualizer -->
     <script src="game.js"></script>
+    <script src="visualizer.js"></script>
 
 </body>
 </html>
