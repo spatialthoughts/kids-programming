@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Puppy City Runner</title>
+
+  <!-- ============================================================
+       STYLES
+       This section controls how the page looks: colors, the game
+       frame, buttons, and the text on screen.
+       ============================================================ -->
+  <style>
+    /* Make the whole page a soft sky color and center everything */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Trebuchet MS', 'Comic Sans MS', sans-serif;
+      background: linear-gradient(180deg, #aee3ff 0%, #e6f7ff 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    h1 {
+      color: #2b5d8a;
+      margin-bottom: 4px;
+      letter-spacing: 1px;
+    }
+
+    .tagline {
+      color: #4a7aa5;
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+
+    /* The game lives inside this box */
+    .game-frame {
+      position: relative;
+      border: 4px solid #2b5d8a;
+      border-radius: 16px;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 10px 30px rgba(43, 93, 138, 0.3);
+      max-width: 100%;
+    }
+
+    canvas { display: block; max-width: 100%; height: auto; }
+
+    /* The panel that covers the game at the start and at game over */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.88);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 14px;
+      padding: 20px;
+    }
+
+    .overlay h2 { color: #2b5d8a; font-size: 30px; }
+    .overlay p  { color: #44698c; font-size: 17px; max-width: 420px; }
+
+    .big-button {
+      font-family: inherit;
+      font-size: 22px;
+      font-weight: bold;
+      color: white;
+      background: linear-gradient(180deg, #ff9d4d, #f4762a);
+      border: none;
+      border-radius: 40px;
+      padding: 14px 44px;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #c75a18;
+      transition: transform 0.1s;
+    }
+    .big-button:active { transform: translateY(4px); box-shadow: 0 2px 0 #c75a18; }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <h1>Puppy City Runner</h1>
+  <p class="tagline">Press SPACE or tap the screen to help the puppy hop over the city obstacles</p>
+
+  <div class="game-frame">
+    <!-- The canvas is where the whole game is drawn -->
+    <canvas id="game" width="800" height="300"></canvas>
+
+    <!-- Start screen (shown before the game begins) -->
+    <div id="startScreen" class="overlay">
+      <h2>Ready to Run?</h2>
+      <p>Press <strong>SPACE</strong> or <strong>tap the screen</strong> to make
+         the puppy jump over cars, trees and buildings.</p>
+      <button id="startButton" class="big-button">Start Game</button>
+    </div>
+
+    <!-- Game over screen (hidden until the puppy trips) -->
+    <div id="gameOverScreen" class="overlay hidden">
+      <h2>Oops! The puppy tripped!</h2>
+      <p id="finalScoreText">You scored 0 points.</p>
+      <p>Press <strong>SPACE</strong> or tap the button to try again!</p>
+      <button id="restartButton" class="big-button">Play Again</button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       GAME CODE
+       Everything below makes the game work. It is split into
+       sections with comments so you can find and change things.
+       ============================================================ -->
+  <script>
+    // ----------------------------------------------------------
+    // SECTION 1: GAME SETTINGS
+    // Change these numbers to make the game easier or harder!
+    // ----------------------------------------------------------
+    const GRAVITY        = 0.55;  // How fast the puppy falls (bigger = falls faster)
+    const JUMP_POWER     = 13;    // How high the puppy jumps (bigger = higher)
+    const START_SPEED    = 4.5;   // How fast obstacles move at the start
+    const SPEED_INCREASE = 0.001; // How quickly the game speeds up over time
+    const MIN_GAP        = 90;    // Smallest time gap between obstacles (in frames)
+    const EXTRA_GAP      = 80;    // Random extra gap added on top of MIN_GAP
+    const HITBOX_SHRINK  = 0.25;  // Hitboxes are shrunk 25% so the game is forgiving
+
+    // ----------------------------------------------------------
+    // SECTION 2: SETUP
+    // Grab the canvas and the buttons so the code can use them.
+    // ----------------------------------------------------------
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const GROUND_Y = 250; // The y position of the sidewalk the puppy runs on
+
+    const startScreen    = document.getElementById('startScreen');
+    const gameOverScreen = document.getElementById('gameOverScreen');
+    const startButton    = document.getElementById('startButton');
+    const restartButton  = document.getElementById('restartButton');
+    const finalScoreText = document.getElementById('finalScoreText');
+
+    // The "state" tells us what is happening right now in the game.
+    // It can be 'waiting', 'playing' or 'gameover'.
+    let state = 'waiting';
+
+    let speed = START_SPEED;     // Current scrolling speed
+    let score = 0;               // Current score
+    let bestScore = Number(localStorage.getItem('puppyBestScore') || 0);
+    let frameCount = 0;          // Counts frames, used for animations
+    let nextObstacleIn = 100;    // Frames until the next obstacle appears
+
+    // The puppy! It has a position, a size, and a vertical speed.
+    const puppy = {
+      x: 70,
+      y: GROUND_Y,      // y is where the puppy's feet are
+      width: 60,
+      height: 45,
+      velocityY: 0,     // How fast the puppy is moving up or down
+      onGround: true
+    };
+
+    let obstacles = [];  // List of obstacles currently on screen
+    let clouds = [];     // Decorative clouds in the sky
+    let skyline = [];    // Decorative buildings far away in the background
+
+    // ----------------------------------------------------------
+    // SECTION 3: BACKGROUND SCENERY
+    // Clouds and a city skyline that slowly drift by.
+    // ----------------------------------------------------------
+    function makeScenery() {
+      clouds = [];
+      for (let i = 0; i < 4; i++) {
+        clouds.push({ x: Math.random() * 800, y: 30 + Math.random() * 70, size: 20 + Math.random() * 15 });
+      }
+      skyline = [];
+      let x = 0;
+      while (x < 900) {
+        const w = 50 + Math.random() * 60;
+        const h = 60 + Math.random() * 100;
+        skyline.push({ x: x, width: w, height: h });
+        x += w + 10;
+      }
+    }
+
+    function drawScenery() {
+      // Sky
+      const sky = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+      sky.addColorStop(0, '#8ed3f7');
+      sky.addColorStop(1, '#d9f1ff');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, canvas.width, GROUND_Y);
+
+      // Sun
+      ctx.fillStyle = '#ffe066';
+      ctx.beginPath();
+      ctx.arc(720, 50, 28, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Far away skyline (moves slowly for a depth effect)
+      ctx.fillStyle = '#b3cde0';
+      for (const b of skyline) {
+        ctx.fillRect(b.x, GROUND_Y - b.height, b.width, b.height);
+      }
+
+      // Clouds
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      for (const c of clouds) {
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2);
+        ctx.arc(c.x + c.size, c.y + 5, c.size * 0.8, 0, Math.PI * 2);
+        ctx.arc(c.x - c.size, c.y + 5, c.size * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Sidewalk and road
+      ctx.fillStyle = '#c8c8c8';
+      ctx.fillRect(0, GROUND_Y, canvas.width, 14);
+      ctx.fillStyle = '#555a66';
+      ctx.fillRect(0, GROUND_Y + 14, canvas.width, canvas.height - GROUND_Y - 14);
+
+      // Dashed line on the road that scrolls with the game
+      ctx.fillStyle = '#f3d34a';
+      const dashOffset = (frameCount * speed) % 60;
+      for (let x = -dashOffset; x < canvas.width; x += 60) {
+        ctx.fillRect(x, GROUND_Y + 32, 30, 5);
+      }
+    }
+
+    function moveScenery() {
+      // Background moves slower than obstacles (parallax effect)
+      for (const c of clouds) {
+        c.x -= speed * 0.15;
+        if (c.x < -60) c.x = canvas.width + 60;
+      }
+      for (const b of skyline) {
+        b.x -= speed * 0.3;
+        if (b.x + b.width < 0) b.x = canvas.width + Math.random() * 40;
+      }
+    }
+
+    // ----------------------------------------------------------
+    // SECTION 4: DRAWING THE PUPPY
+    // The puppy is drawn from simple shapes: body, head, ears,
+    // tail and legs. The legs swing while running.
+    // ----------------------------------------------------------
+    function drawPuppy() {
+      const px = puppy.x;
+      const py = puppy.y; // feet position
+      const bodyTop = py - puppy.height;
+
+      ctx.save();
+
+      // Legs: swing back and forth while on the ground, tuck when jumping
+      ctx.strokeStyle = '#b8804d';
+      ctx.lineWidth = 7;
+      ctx.lineCap = 'round';
+      const legSwing = puppy.onGround ? Math.sin(frameCount * 0.4) * 8 : 6;
+      ctx.beginPath();
+      ctx.moveTo(px + 14, py - 16);
+      ctx.lineTo(px + 14 + legSwing, py - 2);
+      ctx.moveTo(px + 26, py - 16);
+      ctx.lineTo(px + 26 - legSwing, py - 2);
+      ctx.moveTo(px + 40, py - 16);
+      ctx.lineTo(px + 40 - legSwing, py - 2);
+      ctx.moveTo(px + 50, py - 16);
+      ctx.lineTo(px + 50 + legSwing, py - 2);
+      ctx.stroke();
+
+      // Tail: wags while running
+      const tailWag = Math.sin(frameCount * 0.5) * 6;
+      ctx.beginPath();
+      ctx.moveTo(px + 4, bodyTop + 16);
+      ctx.lineTo(px - 8, bodyTop + 6 + tailWag);
+      ctx.stroke();
+
+      // Body
+      ctx.fillStyle = '#d99a5b';
+      ctx.beginPath();
+      ctx.ellipse(px + 30, bodyTop + 22, 28, 16, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Head
+      ctx.beginPath();
+      ctx.arc(px + 58, bodyTop + 8, 15, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Floppy ear
+      ctx.fillStyle = '#b8804d';
+      ctx.beginPath();
+      ctx.ellipse(px + 50, bodyTop + 8, 6, 12, 0.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Snout
+      ctx.fillStyle = '#f0c89b';
+      ctx.beginPath();
+      ctx.ellipse(px + 68, bodyTop + 12, 8, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Nose
+      ctx.fillStyle = '#4a3728';
+      ctx.beginPath();
+      ctx.arc(px + 74, bodyTop + 11, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Eye
+      ctx.beginPath();
+      ctx.arc(px + 60, bodyTop + 4, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // ----------------------------------------------------------
+    // SECTION 5: OBSTACLES
+    // Three kinds of obstacles: cars, trees and small buildings.
+    // Each one knows its size and how to draw itself.
+    // ----------------------------------------------------------
+    function spawnObstacle() {
+      const kinds = ['car', 'tree', 'building'];
+      const kind = kinds[Math.floor(Math.random() * kinds.length)];
+
+      let width, height;
+      if (kind === 'car')      { width = 70; height = 38; }
+      if (kind === 'tree')     { width = 36; height = 60; }
+      if (kind === 'building') { width = 55; height = 65; }
+
+      obstacles.push({ kind: kind, x: canvas.width + 20, width: width, height: height });
+    }
+
+    function drawObstacle(ob) {
+      const x = ob.x;
+      const top = GROUND_Y - ob.height;
+
+      if (ob.kind === 'car') {
+        // Car body
+        ctx.fillStyle = '#e05c5c';
+        ctx.beginPath();
+        ctx.roundRect(x, top + 12, ob.width, 18, 6);
+        ctx.fill();
+        // Car roof
+        ctx.fillStyle = '#c94444';
+        ctx.beginPath();
+        ctx.roundRect(x + 14, top, 38, 16, 6);
+        ctx.fill();
+        // Windows
+        ctx.fillStyle = '#bfe3f5';
+        ctx.fillRect(x + 18, top + 3, 13, 10);
+        ctx.fillRect(x + 35, top + 3, 13, 10);
+        // Wheels
+        ctx.fillStyle = '#333';
+        ctx.beginPath();
+        ctx.arc(x + 16, GROUND_Y - 4, 7, 0, Math.PI * 2);
+        ctx.arc(x + 54, GROUND_Y - 4, 7, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      if (ob.kind === 'tree') {
+        // Trunk
+        ctx.fillStyle = '#8a5a33';
+        ctx.fillRect(x + 13, top + 30, 10, 30);
+        // Leaves (three green circles)
+        ctx.fillStyle = '#4caf50';
+        ctx.beginPath();
+        ctx.arc(x + 18, top + 18, 17, 0, Math.PI * 2);
+        ctx.arc(x + 6, top + 28, 12, 0, Math.PI * 2);
+        ctx.arc(x + 30, top + 28, 12, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      if (ob.kind === 'building') {
+        // A small city kiosk with windows and a door
+        ctx.fillStyle = '#7e8fd9';
+        ctx.fillRect(x, top + 8, ob.width, ob.height - 8);
+        // Roof
+        ctx.fillStyle = '#5a6bb5';
+        ctx.fillRect(x - 4, top, ob.width + 8, 10);
+        // Windows
+        ctx.fillStyle = '#fff3b0';
+        ctx.fillRect(x + 7, top + 16, 14, 12);
+        ctx.fillRect(x + 32, top + 16, 14, 12);
+        // Door
+        ctx.fillStyle = '#3d4a85';
+        ctx.fillRect(x + 20, GROUND_Y - 24, 16, 24);
+      }
+    }
+
+    function moveObstacles() {
+      for (const ob of obstacles) {
+        ob.x -= speed;
+      }
+      // Remove obstacles that have gone off the left edge
+      obstacles = obstacles.filter(ob => ob.x + ob.width > -10);
+
+      // Count down to the next obstacle
+      nextObstacleIn--;
+      if (nextObstacleIn <= 0) {
+        spawnObstacle();
+        // Faster game = obstacles need a bit more room between them
+        nextObstacleIn = MIN_GAP + Math.random() * EXTRA_GAP;
+      }
+    }
+
+    // ----------------------------------------------------------
+    // SECTION 6: JUMPING AND FALLING
+    // Gravity pulls the puppy down; jumping pushes it up.
+    // ----------------------------------------------------------
+    function jump() {
+      if (state === 'playing' && puppy.onGround) {
+        puppy.velocityY = -JUMP_POWER;
+        puppy.onGround = false;
+      } else if (state === 'gameover' || state === 'waiting') {
+        startGame();
+      }
+    }
+
+    function movePuppy() {
+      puppy.velocityY += GRAVITY;   // gravity pulls down
+      puppy.y += puppy.velocityY;   // move the puppy
+
+      // Don't fall through the ground!
+      if (puppy.y >= GROUND_Y) {
+        puppy.y = GROUND_Y;
+        puppy.velocityY = 0;
+        puppy.onGround = true;
+      }
+    }
+
+    // ----------------------------------------------------------
+    // SECTION 7: COLLISIONS
+    // Check if the puppy bumped into an obstacle. The boxes are
+    // shrunk a little so near-misses don't count (more fun!).
+    // ----------------------------------------------------------
+    function checkCollisions() {
+      // The puppy's hitbox (a bit smaller than the drawing)
+      const shrinkW = puppy.width * HITBOX_SHRINK;
+      const shrinkH = puppy.height * HITBOX_SHRINK;
+      const pLeft   = puppy.x + shrinkW / 2;
+      const pRight  = puppy.x + puppy.width - shrinkW / 2;
+      const pTop    = puppy.y - puppy.height + shrinkH;
+      const pBottom = puppy.y;
+
+      for (const ob of obstacles) {
+        const sW = ob.width * HITBOX_SHRINK;
+        const sH = ob.height * HITBOX_SHRINK;
+        const oLeft   = ob.x + sW / 2;
+        const oRight  = ob.x + ob.width - sW / 2;
+        const oTop    = GROUND_Y - ob.height + sH;
+        const oBottom = GROUND_Y;
+
+        // Two boxes overlap if they overlap both sideways and up-down
+        const overlapX = pLeft < oRight && pRight > oLeft;
+        const overlapY = pTop < oBottom && pBottom > oTop;
+        if (overlapX && overlapY) {
+          endGame();
+          return;
+        }
+      }
+    }
+
+    // ----------------------------------------------------------
+    // SECTION 8: SCORE
+    // ----------------------------------------------------------
+    function drawScore() {
+      ctx.fillStyle = '#2b5d8a';
+      ctx.font = 'bold 18px Trebuchet MS';
+      ctx.textAlign = 'right';
+      ctx.fillText('Score: ' + Math.floor(score), canvas.width - 16, 28);
+      ctx.fillText('Best: ' + Math.floor(bestScore), canvas.width - 16, 52);
+      ctx.textAlign = 'left';
+    }
+
+    // ----------------------------------------------------------
+    // SECTION 9: THE GAME LOOP
+    // This runs about 60 times every second. Each time it moves
+    // everything a little and redraws the whole picture.
+    // ----------------------------------------------------------
+    function gameLoop() {
+      frameCount++;
+
+      drawScenery();
+
+      if (state === 'playing') {
+        moveScenery();
+        movePuppy();
+        moveObstacles();
+        checkCollisions();
+        score += 0.15;            // score slowly goes up as you run
+        speed += SPEED_INCREASE;  // game slowly gets faster
+      }
+
+      for (const ob of obstacles) drawObstacle(ob);
+      drawPuppy();
+      drawScore();
+
+      requestAnimationFrame(gameLoop); // ask the browser to run this again
+    }
+
+    // ----------------------------------------------------------
+    // SECTION 10: STARTING AND ENDING THE GAME
+    // ----------------------------------------------------------
+    function startGame() {
+      state = 'playing';
+      speed = START_SPEED;
+      score = 0;
+      obstacles = [];
+      nextObstacleIn = 100;
+      puppy.y = GROUND_Y;
+      puppy.velocityY = 0;
+      puppy.onGround = true;
+      startScreen.classList.add('hidden');
+      gameOverScreen.classList.add('hidden');
+    }
+
+    function endGame() {
+      state = 'gameover';
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('puppyBestScore', Math.floor(bestScore));
+      }
+      finalScoreText.textContent =
+        'You scored ' + Math.floor(score) + ' points. Best: ' + Math.floor(bestScore) + '!';
+      gameOverScreen.classList.remove('hidden');
+    }
+
+    // ----------------------------------------------------------
+    // SECTION 11: KEYBOARD, MOUSE AND TOUCH CONTROLS
+    // Press SPACE or the up arrow on a keyboard, or tap the
+    // screen on a phone or tablet, to make the puppy jump.
+    // ----------------------------------------------------------
+    document.addEventListener('keydown', (event) => {
+      if (event.code === 'Space' || event.code === 'ArrowUp') {
+        event.preventDefault(); // stop the page from scrolling
+        jump();
+      }
+    });
+
+    canvas.addEventListener('pointerdown', jump);
+
+    startButton.addEventListener('click', startGame);
+    restartButton.addEventListener('click', startGame);
+
+    // ----------------------------------------------------------
+    // SECTION 12: GO!
+    // Build the scenery and start the drawing loop. The game
+    // itself waits until the player presses Start.
+    // ----------------------------------------------------------
+    makeScenery();
+    gameLoop();
+  </script>
+</body>
+</html>
