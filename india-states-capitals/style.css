@@ -1,0 +1,360 @@
+/* ===================================================
+   INDIA STATES AND CAPITALS - style.css
+   This file controls how everything LOOKS.
+   =================================================== */
+
+
+/* ---------------------
+   CSS CUSTOM PROPERTIES
+   Change these to re-theme the whole game at once!
+   --------------------- */
+:root {
+  --card-w: 320px;
+  --card-h: 360px;
+  --bg: #eef6ff;
+  --ink: #1f2a44;
+  --accent: #2f7bdb;
+  --accent-dark: #1d5bb0;
+  --shape-fill: #4a90d9;
+  --shape-stroke: #1a2f4d;
+  --back-bg: #2f7bdb;
+}
+
+@media (max-width: 480px) {
+  :root {
+    --card-w: 260px;
+    --card-h: 300px;
+  }
+}
+
+
+/* ---------------------
+   RESET + BASE
+   --------------------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Trebuchet MS', 'Segoe UI', Verdana, sans-serif;
+  text-align: center;
+  padding: 24px 16px 40px;
+  min-height: 100vh;
+}
+
+
+/* ---------------------
+   HEADER
+   --------------------- */
+h1 {
+  color: var(--accent-dark);
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #4a5b7a;
+  font-size: 15px;
+  max-width: 480px;
+  margin: 0 auto 20px;
+}
+
+
+/* ---------------------
+   DECK MODE BUTTONS
+   Pick the full deck or just the Seven Sisters practice set,
+   or shuffle the order of whichever deck is active.
+   --------------------- */
+#mode-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.mode-btn {
+  background: #ffffff;
+  color: var(--accent-dark);
+  border: 2px solid var(--accent);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.mode-btn:hover {
+  background: #d3e3f7;
+}
+
+.mode-btn.active {
+  background: var(--accent);
+  color: white;
+}
+
+
+/* ---------------------
+   PROGRESS BAR
+   --------------------- */
+#progress-wrap {
+  max-width: 360px;
+  margin: 0 auto 24px;
+}
+
+#progress-label {
+  font-size: 14px;
+  color: #4a5b7a;
+  margin-bottom: 6px;
+}
+
+#progress-track {
+  background: #d3e3f7;
+  border-radius: 10px;
+  height: 12px;
+  overflow: hidden;
+}
+
+#progress-fill {
+  background: var(--accent);
+  height: 100%;
+  width: 0%;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+
+/* ---------------------
+   FLASHCARD STAGE
+   The "stage" centers the card and gives the 3D flip
+   some room to perform in.
+   --------------------- */
+#card-stage {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+  perspective: 1200px;
+}
+
+#flashcard {
+  position: relative;
+  width: var(--card-w);
+  height: var(--card-h);
+  cursor: pointer;
+}
+
+/* A visible outline when the card is reached by pressing Tab,
+   since it's a div acting as a button rather than a real <button>. */
+#flashcard:focus-visible {
+  outline: 3px solid var(--accent-dark);
+  outline-offset: 4px;
+  border-radius: 24px;
+}
+
+/* The "inner" element is what actually flips in 3D. */
+#flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+}
+
+/* Adding this class (done in script.js) spins the card around. */
+#flashcard.is-flipped #flashcard-inner {
+  transform: rotateY(180deg);
+}
+
+/* Used for a split second in script.js when moving to a new card while
+   flipped: it turns the animation off so the card can snap straight back
+   to the front face instantly, instead of slowly spinning through the
+   back face (which would show the NEW card's name before its shape had
+   even appeared -- a spoiler!). */
+#flashcard.no-flip-transition #flashcard-inner {
+  transition: none;
+}
+
+/* Both faces sit in exactly the same spot, on top of each other. */
+.card-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 24px;
+  backface-visibility: hidden;
+  box-shadow: 0 10px 24px rgba(31, 42, 68, 0.18);
+  padding: 16px;
+}
+
+.card-front {
+  background: #ffffff;
+  border: 3px solid var(--accent);
+}
+
+.card-back {
+  background: var(--back-bg);
+  color: white;
+  transform: rotateY(180deg);
+}
+
+#shape-svg {
+  width: 80%;
+  height: 70%;
+}
+
+#shape-path {
+  fill: var(--shape-fill);
+  stroke: var(--shape-stroke);
+  stroke-width: 2;
+}
+
+.hint {
+  font-size: 13px;
+  color: #8a99b8;
+  margin-top: 10px;
+}
+
+.card-back .hint {
+  color: #d6e6fb;
+}
+
+.type-badge {
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 4px 12px;
+  margin-bottom: 10px;
+}
+
+#card-name {
+  font-size: 26px;
+  margin-bottom: 14px;
+}
+
+.capital-label {
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #d6e6fb;
+}
+
+#card-capital {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 2px;
+  margin-bottom: 6px;
+}
+
+/* Shown for the in-between step, before the capital is revealed. */
+#card-capital.capital-hidden {
+  font-size: 15px;
+  font-weight: normal;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+
+/* ---------------------
+   HINT BUTTON + HINT BOX
+   The button sits in the bottom-right corner of the card (it's
+   a sibling of #flashcard-inner, so it never flips with it). The
+   hint box now sits ON TOP of the card itself, covering it, so you
+   don't lose your place -- and you can click anywhere on the hint
+   box to dismiss it and get back to the card.
+   --------------------- */
+#hint-btn {
+  position: absolute;
+  right: -10px;
+  bottom: -10px;
+  z-index: 7;
+  background: var(--accent-dark);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(31, 42, 68, 0.3);
+  transition: background 0.15s, transform 0.15s;
+}
+
+#hint-btn:hover {
+  background: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* The hint box is an absolutely-positioned overlay that covers the
+   whole card (inset: 0 stretches it to all four edges of #flashcard,
+   which is its nearest positioned ancestor). It sits at a lower
+   z-index than #hint-btn so the button stays clickable on top of it. */
+#hint-box {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(31, 42, 68, 0.92);
+  border-radius: 24px;
+  padding: 24px;
+  cursor: pointer;
+}
+
+#hint-box p {
+  font-size: 15px;
+  line-height: 1.5;
+  color: white;
+}
+
+#hint-box.hidden {
+  display: none;
+}
+
+
+/* ---------------------
+   NAVIGATION BUTTONS
+   --------------------- */
+#nav-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+#nav-controls button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+#nav-controls button:hover {
+  background: var(--accent-dark);
+  transform: translateY(-2px);
+}
+
+#deck-counter {
+  font-size: 15px;
+  color: #4a5b7a;
+  min-width: 60px;
+}
+
+.hint-text {
+  font-size: 13px;
+  color: #8a99b8;
+}

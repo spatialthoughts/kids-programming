@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>India States and Capitals</title>
+
+  <!-- This page only needs the stylesheet here. All the data and -->
+  <!-- game logic live in separate files (states-data.js, script.js) -->
+  <!-- so each file stays small and easy to read. -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============================================================ -->
+  <!-- HEADER: title and quick instructions                          -->
+  <!-- ============================================================ -->
+  <header>
+    <h1>India States and Capitals</h1>
+    <p class="subtitle">Click the shape to find out which state or union territory it is, and its capital!</p>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- DECK MODE: practice the full deck of 36, or just the          -->
+  <!-- "Seven Sisters" of the northeast (Arunachal Pradesh, Assam,    -->
+  <!-- Manipur, Meghalaya, Mizoram, Nagaland and Tripura). The        -->
+  <!-- Shuffle button mixes up the order of whichever deck is active. -->
+  <!-- ============================================================ -->
+  <div id="mode-controls">
+    <button id="mode-all-btn" type="button" class="mode-btn active">All States (36)</button>
+    <button id="mode-seven-btn" type="button" class="mode-btn">Seven Sisters (7)</button>
+    <button id="shuffle-btn" type="button" class="mode-btn">Shuffle</button>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- PROGRESS BAR: shows how many cards in the current deck you've -->
+  <!-- revealed                                                      -->
+  <!-- ============================================================ -->
+  <div id="progress-wrap">
+    <p id="progress-label">Cards seen: <span id="progress-count">0</span> / <span id="progress-total">36</span></p>
+    <div id="progress-track">
+      <div id="progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- FLASHCARD: the main thing you click on                        -->
+  <!--                                                                -->
+  <!-- It is built from two faces (front/back) stacked on top of      -->
+  <!-- each other. CSS flips the whole stack around when we add the   -->
+  <!-- "is-flipped" class in script.js.                                -->
+  <!--                                                                -->
+  <!-- NOTE: this used to be a <button>, but the Hint button below    -->
+  <!-- needed to live inside it -- and you can't put a button inside  -->
+  <!-- another button in HTML. So it's a <div> with role="button"     -->
+  <!-- and tabindex="0", which makes it act like a button for         -->
+  <!-- keyboard/screen-reader users too.                               -->
+  <!-- ============================================================ -->
+  <div id="card-stage">
+    <div id="flashcard" role="button" tabindex="0" aria-label="Click to reveal the state name, then click again for the capital">
+      <div id="flashcard-inner">
+
+        <!-- FRONT FACE: just the map shape -->
+        <div class="card-face card-front">
+          <svg id="shape-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+            <path id="shape-path" d=""></path>
+          </svg>
+          <p class="hint">Click to reveal</p>
+        </div>
+
+        <!-- BACK FACE: the answer                                     -->
+        <!-- The name shows right away, but the capital stays hidden   -->
+        <!-- until you click ONE more time -- that's a second little    -->
+        <!-- quiz step where you can guess the capital first!           -->
+        <div class="card-face card-back">
+          <p id="card-type" class="type-badge"></p>
+          <h2 id="card-name"></h2>
+          <p class="capital-label">Capital</p>
+          <p id="card-capital"></p>
+          <p id="back-hint" class="hint">Click again for the capital</p>
+        </div>
+
+      </div>
+
+      <!-- HINT BUTTON: sits in the bottom-right corner of the card,   -->
+      <!-- outside #flashcard-inner so it stays put (doesn't flip)     -->
+      <!-- and shows on both faces. Clicking it does NOT flip the      -->
+      <!-- card -- script.js stops the click from bubbling up.          -->
+      <button id="hint-btn" type="button" aria-label="Get a hint about this state">Hint</button>
+
+      <!-- HINT BOX: covers the card with a fun fact when you press     -->
+      <!-- the Hint button. Click anywhere on it to close it again.     -->
+      <!-- It lives inside #flashcard (but outside #flashcard-inner,    -->
+      <!-- like the Hint button) so it overlays on top of the card      -->
+      <!-- instead of taking up its own space on the page.              -->
+      <div id="hint-box" class="hidden">
+        <p id="hint-fact"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- NAVIGATION: move through the deck of 36 cards                 -->
+  <!-- ============================================================ -->
+  <div id="nav-controls">
+    <button id="prev-btn" type="button">Previous</button>
+    <span id="deck-counter">1 / 36</span>
+    <button id="next-btn" type="button">Next</button>
+  </div>
+
+  <p class="hint-text">Tip: you can also use the Left and Right arrow keys.</p>
+
+  <!-- Load the data first, then the game logic that uses it. -->
+  <script src="states-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
