@@ -27,6 +27,7 @@ const cardCapital = document.getElementById('card-capital');
 const backHint = document.getElementById('back-hint');
 
 const hintBtn = document.getElementById('hint-btn');
+const cricketHintBtn = document.getElementById('cricket-hint-btn');
 const hintBox = document.getElementById('hint-box');
 const hintFact = document.getElementById('hint-fact');
 
@@ -200,6 +201,18 @@ function toggleHint(event) {
   }
 }
 
+function toggleCricketHint(event) {
+  event.stopPropagation();
+  const data = activeDeck[currentIndex];
+
+  if (hintBox.classList.contains('hidden')) {
+    hintFact.textContent = data.cricketFact;
+    hintBox.classList.remove('hidden');
+  } else {
+    hideHint(event);
+  }
+}
+
 function hideHint(event) {
   event.stopPropagation();
   hintBox.classList.add('hidden');
@@ -271,6 +284,7 @@ function shuffleDeck() {
 // ------------------------------------------------------------
 flashcardBtn.addEventListener('click', handleCardClick);
 hintBtn.addEventListener('click', toggleHint);
+cricketHintBtn.addEventListener('click', toggleCricketHint);
 hintBox.addEventListener('click', hideHint);
 prevBtn.addEventListener('click', prevCard);
 nextBtn.addEventListener('click', nextCard);
@@ -292,8 +306,8 @@ document.addEventListener('keydown', (event) => {
 
 
 // ------------------------------------------------------------
-// START THE GAME
+// START THE GAME (shuffle first so the order is different each time)
 // ------------------------------------------------------------
 progressTotal.textContent = activeDeck.length;
 updateProgress();
-showCard(0);
+shuffleDeck();
