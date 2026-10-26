@@ -1,0 +1,110 @@
+/* ============================================================
+   DIG A HOLE IN EARTH - style.css
+   This file controls how the page looks: colors, sizes and
+   where things sit on the screen.
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   PAGE: fill the whole screen with a dark "space" background
+   ------------------------------------------------------------ */
+html, body {
+  margin: 0;
+  height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #0b1026;
+}
+
+
+/* ------------------------------------------------------------
+   GLOBE: the map takes up the entire screen
+   ------------------------------------------------------------ */
+#map {
+  position: absolute;
+  inset: 0;
+  cursor: crosshair;
+}
+
+
+/* ------------------------------------------------------------
+   INFO PANEL: the box floating at the top of the screen
+   ------------------------------------------------------------ */
+#panel {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 460px;
+  box-sizing: border-box;
+  padding: 14px 20px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  max-height: calc(100% - 32px);  /* never taller than the screen */
+  overflow-y: auto;               /* scroll inside the panel if needed */
+}
+
+#panel h1 {
+  margin: 0 0 6px;
+  font-size: 26px;
+  color: #7a4b1e;   /* a dirt brown color */
+}
+
+#message {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #1f2a44;
+}
+
+#results p {
+  margin: 8px 0 0;
+  font-size: 15px;
+  color: #333;
+}
+
+/* ------------------------------------------------------------
+   TIPS: the "how to come out on land" box
+   ------------------------------------------------------------ */
+details {
+  margin-top: 12px;
+  text-align: left;
+  font-size: 15px;
+  color: #333;
+}
+
+/* The clickable title of each box */
+summary {
+  cursor: pointer;
+  font-weight: bold;
+  color: #7a4b1e;
+}
+
+details p,
+details li {
+  line-height: 1.4;
+}
+
+/* Anything with the "hidden" class is not shown */
+.hidden {
+  display: none;
+}
+
+
+/* ------------------------------------------------------------
+   COLORED DOTS: match the color of each pin on the globe
+   Change these colors (and the ones in script.js) to make
+   your own pin colors!
+   ------------------------------------------------------------ */
+.dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.start-dot { background: #e63946; }  /* red */
+.end-dot   { background: #2a9d8f; }  /* green */

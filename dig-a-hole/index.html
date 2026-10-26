@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dig a Hole in Earth</title>
+
+  <!-- MapLibre is the free mapping library that draws our 3D globe. -->
+  <!-- We load its stylesheet and code from the internet (a CDN).    -->
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css">
+  <script src="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.js"></script>
+
+  <!-- Our own colors and layout -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============================================================ -->
+  <!-- THE GLOBE: MapLibre draws the whole Earth inside this box     -->
+  <!-- ============================================================ -->
+  <div id="map"></div>
+
+  <!-- ============================================================ -->
+  <!-- INFO PANEL: title, instructions and the result of each dig    -->
+  <!-- ============================================================ -->
+  <div id="panel">
+    <h1>Dig a Hole in Earth</h1>
+    <p id="message">Click anywhere on the globe to start digging!</p>
+
+    <!-- These lines stay hidden until you dig your first hole -->
+    <div id="results" class="hidden">
+      <p><span class="dot start-dot"></span> You started at: <b id="start-coords"></b></p>
+      <p><span class="dot end-dot"></span> You came out at: <b id="end-coords"></b></p>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- TIPS: click the title to open or close it.                 -->
+    <!-- <details> is a built-in HTML box that opens and closes     -->
+    <!-- by itself, so it needs no JavaScript!                      -->
+    <!-- ======================================================== -->
+    <details>
+      <summary>Tips: how to come out on land</summary>
+      <p>
+        This is hard! About 71% of Earth is covered by water. Only about
+        1 out of every 7 pieces of land has land on the other side.
+      </p>
+      <p>Try these spots that work:</p>
+      <ul>
+        <li><b>Argentina or Chile</b> comes out in China.</li>
+        <li><b>The middle of Spain</b> (near Madrid) comes out in New Zealand.</li>
+        <li><b>Hawaii</b> comes out in Botswana, in Africa.</li>
+        <li><b>Ecuador</b> comes out in Sumatra, Indonesia.</li>
+        <li><b>Peru</b> comes out in Cambodia or Thailand.</li>
+        <li><b>Greenland or northern Canada</b> comes out in Antarctica.</li>
+      </ul>
+      <p>Strategies:</p>
+      <ul>
+        <li><b>Avoid the Pacific's opposite.</b> The Pacific Ocean is so big that most of Africa, Europe, India and the USA come out in the water.</li>
+        <li><b>Use Antarctica.</b> It is a big target. Dig near the North Pole and you will often land on it.</li>
+        <li><b>Think upside down.</b> Find a big piece of land, then dig on the opposite side of the globe, on the other side of the equator.</li>
+      </ul>
+    </details>
+  </div>
+
+  <!-- Our code goes last, after the page and MapLibre are loaded -->
+  <script src="script.js"></script>
+</body>
+</html>
