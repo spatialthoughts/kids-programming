@@ -81,15 +81,35 @@ const spelledWords = new Set();
 
 // ------------------------------------------------------------
 // SAY THE WORD OUT LOUD
-// speechSynthesis is built into the web browser. We cancel any
-// word that is still being spoken so they don't pile up.
+// speechSynthesis is built into the web browser.
+//
+// Phones are picky about speech, so we:
+//   - pick an English voice ourselves (British if the phone has
+//     one), because some phones go silent if we only ask for a
+//     language they don't have.
+//   - only cancel when something is still being spoken. On some
+//     phones, cancel() right before speak() makes the new word
+//     get skipped.
 // ------------------------------------------------------------
+function pickVoice() {
+  const voices = speechSynthesis.getVoices();
+  return voices.find((v) => v.lang.replace('_', '-') === 'en-GB')
+    || voices.find((v) => v.lang.startsWith('en'))
+    || null;
+}
+
 function speakWord() {
   const word = activeDeck[currentIndex];
   const speech = new SpeechSynthesisUtterance(word);
-  speech.lang = 'en-GB';
+  const voice = pickVoice();
+  if (voice) {
+    speech.voice = voice;
+    speech.lang = voice.lang;
+  }
   speech.rate = SPEECH_RATE;
-  speechSynthesis.cancel();
+  if (speechSynthesis.speaking || speechSynthesis.pending) {
+    speechSynthesis.cancel();
+  }
   speechSynthesis.speak(speech);
 }
 
