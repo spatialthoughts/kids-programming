@@ -32,6 +32,9 @@ const blanks = document.getElementById('blanks');
 const letterCount = document.getElementById('letter-count');
 const answerInput = document.getElementById('answer-input');
 const message = document.getElementById('message');
+const wordInfo = document.getElementById('word-info');
+const wordMeaning = document.getElementById('word-meaning');
+const wordSentence = document.getElementById('word-sentence');
 
 const checkBtn = document.getElementById('check-btn');
 const hintBtn = document.getElementById('hint-btn');
@@ -147,6 +150,7 @@ function showCard(index) {
   answerInput.disabled = false;
   message.textContent = '';
   message.className = '';
+  wordInfo.classList.add('hidden');
 
   drawBlanks();
   updateButtons();
@@ -238,6 +242,7 @@ function checkAnswer() {
     message.className = 'good';
     spelledWords.add(word);
     updateProgress();
+    showWordInfo();
   } else {
     tries++;
     if (tries >= MAX_TRIES) {
@@ -297,7 +302,23 @@ function showAnswer() {
   message.className = 'bad';
   drawBlanks();
   updateButtons();
+  showWordInfo();
   speakWord();
+}
+
+
+// ------------------------------------------------------------
+// SHOW THE MEANING AND EXAMPLE SENTENCE
+// Looks the word up in WORD_INFO (from word-info.js). If the
+// word isn't there, the box just stays hidden.
+// ------------------------------------------------------------
+function showWordInfo() {
+  const info = WORD_INFO[activeDeck[currentIndex]];
+  if (!info) return;
+
+  wordMeaning.textContent = info.meaning;
+  wordSentence.textContent = info.sentence;
+  wordInfo.classList.remove('hidden');
 }
 
 

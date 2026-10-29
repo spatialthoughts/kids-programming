@@ -266,6 +266,33 @@ h1 {
 
 
 /* ---------------------
+   MEANING + EXAMPLE SENTENCE
+   --------------------- */
+#word-info {
+  width: 90%;
+  background: #fff3d1;
+  border-radius: 12px;
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+#word-info p + p {
+  margin-top: 6px;
+}
+
+.info-label {
+  font-weight: bold;
+  color: var(--accent-dark);
+}
+
+#word-info.hidden {
+  display: none;
+}
+
+
+/* ---------------------
    CARD BUTTONS (Check, Hint, Show Answer)
    --------------------- */
 #card-buttons {

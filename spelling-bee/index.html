@@ -60,6 +60,13 @@
 
       <p id="message"></p>
 
+      <!-- Meaning and example sentence. Hidden until the word is   -->
+      <!-- spelled or the answer is shown.                           -->
+      <div id="word-info" class="hidden">
+        <p><span class="info-label">Meaning:</span> <span id="word-meaning"></span></p>
+        <p><span class="info-label">Example:</span> <span id="word-sentence"></span></p>
+      </div>
+
       <div id="card-buttons">
         <button id="check-btn" type="button">Check</button>
         <button id="hint-btn" type="button">Hint</button>
@@ -81,6 +88,7 @@
 
   <!-- Load the word lists first, then the game logic that uses them. -->
   <script src="words-data.js"></script>
+  <script src="word-info.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
