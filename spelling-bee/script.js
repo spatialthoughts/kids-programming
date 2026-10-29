@@ -2,7 +2,7 @@
 // SPELLING BEE PRACTICE - script.js
 //
 // This file makes the spelling cards work. It does six jobs:
-//   1. Say the word out loud using the computer's voice.
+//   1. Say the word out loud (from an audio file, or the browser's voice).
 //   2. Show one blank box for every letter of the word.
 //   3. Check the spelling you typed.
 //   4. Give hints by filling in one letter at a time.
@@ -81,7 +81,27 @@ const spelledWords = new Set();
 
 // ------------------------------------------------------------
 // SAY THE WORD OUT LOUD
-// speechSynthesis is built into the web browser.
+// First we try to play the word's audio file from the audio
+// folder (made by make-audio.sh). "Carbon dioxide" is in
+// audio/carbon-dioxide.m4a. One audio player is reused for
+// every word, so phones only need to allow sound once.
+//
+// If there is no audio file (for example, a new word you just
+// added), we use the voice built into the web browser instead.
+// ------------------------------------------------------------
+const wordAudio = new Audio();
+
+function speakWord() {
+  const word = activeDeck[currentIndex];
+  const fileName = word.toLowerCase().replaceAll(' ', '-');
+  wordAudio.onerror = () => speakWithBrowser(word);
+  wordAudio.src = `audio/${fileName}.m4a`;
+  wordAudio.play().catch(() => {});
+}
+
+
+// ------------------------------------------------------------
+// THE BACKUP VOICE: speechSynthesis, built into the web browser.
 //
 // Phones are picky about speech, so we:
 //   - pick an English voice ourselves (British if the phone has
@@ -98,8 +118,7 @@ function pickVoice() {
     || null;
 }
 
-function speakWord() {
-  const word = activeDeck[currentIndex];
+function speakWithBrowser(word) {
   const speech = new SpeechSynthesisUtterance(word);
   const voice = pickVoice();
   if (voice) {
