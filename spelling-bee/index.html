@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spelling Bee Practice</title>
+
+  <!-- The word lists live in words-data.js and the game logic -->
+  <!-- lives in script.js, so each file stays small and easy to read. -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============================================================ -->
+  <!-- HEADER: title and quick instructions                          -->
+  <!-- ============================================================ -->
+  <header>
+    <h1>Spelling Bee Practice</h1>
+    <p class="subtitle">Listen to the word, then type how it is spelled!</p>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- WORD SET BUTTONS: practice all 60 words, or just one set.     -->
+  <!-- The Shuffle button mixes up the order of the current set.     -->
+  <!-- ============================================================ -->
+  <div id="mode-controls">
+    <button id="mode-all-btn" type="button" class="mode-btn active">All (60)</button>
+    <button id="mode-set1-btn" type="button" class="mode-btn">Set 1 (30)</button>
+    <button id="mode-set2-btn" type="button" class="mode-btn">Set 2 (30)</button>
+    <button id="shuffle-btn" type="button" class="mode-btn">Shuffle</button>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- PROGRESS BAR: how many words you have spelled correctly       -->
+  <!-- ============================================================ -->
+  <div id="progress-wrap">
+    <p id="progress-label">Words spelled: <span id="progress-count">0</span> / <span id="progress-total">60</span></p>
+    <div id="progress-track">
+      <div id="progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- FLASHCARD: the word card                                      -->
+  <!--                                                                -->
+  <!-- script.js fills #blanks with one box for every letter of the   -->
+  <!-- word. The boxes are empty until you get a hint, spell it        -->
+  <!-- right, or show the answer.                                      -->
+  <!-- ============================================================ -->
+  <div id="card-stage">
+    <div id="flashcard">
+      <button id="speak-btn" type="button">Hear the Word</button>
+
+      <div id="blanks"></div>
+      <p id="letter-count" class="hint"></p>
+
+      <!-- Type your spelling here and press Enter or Check -->
+      <input id="answer-input" type="text" autocomplete="off" autocorrect="off"
+             autocapitalize="off" spellcheck="false" placeholder="Type the spelling">
+
+      <p id="message"></p>
+
+      <div id="card-buttons">
+        <button id="check-btn" type="button">Check</button>
+        <button id="hint-btn" type="button">Hint</button>
+        <button id="answer-btn" type="button">Show Answer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- NAVIGATION: move through the words                            -->
+  <!-- ============================================================ -->
+  <div id="nav-controls">
+    <button id="prev-btn" type="button">Previous</button>
+    <span id="deck-counter">1 / 60</span>
+    <button id="next-btn" type="button">Next</button>
+  </div>
+
+  <p class="hint-text">Tip: press Enter to check. Press Enter again to go to the next word.</p>
+
+  <!-- Load the word lists first, then the game logic that uses them. -->
+  <script src="words-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

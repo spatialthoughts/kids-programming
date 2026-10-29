@@ -1,0 +1,349 @@
+/* ===================================================
+   SPELLING BEE PRACTICE - style.css
+   This file controls how everything LOOKS.
+   =================================================== */
+
+
+/* ---------------------
+   CSS CUSTOM PROPERTIES
+   Change these to re-theme the whole game at once!
+   --------------------- */
+:root {
+  --card-w: 420px;
+  --bg: #fff8e6;
+  --ink: #3a2c0f;
+  --accent: #e8a317;
+  --accent-dark: #b57a00;
+  --correct: #2e9e4f;
+  --wrong: #d64545;
+}
+
+@media (max-width: 480px) {
+  :root {
+    --card-w: 100%;
+  }
+}
+
+
+/* ---------------------
+   RESET + BASE
+   --------------------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Trebuchet MS', 'Segoe UI', Verdana, sans-serif;
+  text-align: center;
+  padding: 24px 16px 40px;
+  min-height: 100vh;
+}
+
+
+/* ---------------------
+   HEADER
+   --------------------- */
+h1 {
+  color: var(--accent-dark);
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #7a6440;
+  font-size: 15px;
+  max-width: 480px;
+  margin: 0 auto 20px;
+}
+
+
+/* ---------------------
+   WORD SET BUTTONS
+   --------------------- */
+#mode-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.mode-btn {
+  background: #ffffff;
+  color: var(--accent-dark);
+  border: 2px solid var(--accent);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.mode-btn:hover {
+  background: #fde9b8;
+}
+
+.mode-btn.active {
+  background: var(--accent);
+  color: white;
+}
+
+
+/* ---------------------
+   PROGRESS BAR
+   --------------------- */
+#progress-wrap {
+  max-width: 360px;
+  margin: 0 auto 24px;
+}
+
+#progress-label {
+  font-size: 14px;
+  color: #7a6440;
+  margin-bottom: 6px;
+}
+
+#progress-track {
+  background: #fde9b8;
+  border-radius: 10px;
+  height: 12px;
+  overflow: hidden;
+}
+
+#progress-fill {
+  background: var(--accent);
+  height: 100%;
+  width: 0%;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+
+/* ---------------------
+   FLASHCARD
+   --------------------- */
+#card-stage {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+#flashcard {
+  width: var(--card-w);
+  background: #ffffff;
+  border: 3px solid var(--accent);
+  border-radius: 24px;
+  box-shadow: 0 10px 24px rgba(58, 44, 15, 0.15);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  transition: border-color 0.2s;
+}
+
+/* script.js adds these classes to color the card border */
+#flashcard.is-correct {
+  border-color: var(--correct);
+}
+
+#flashcard.is-revealed {
+  border-color: var(--wrong);
+}
+
+/* A little side-to-side wiggle when the spelling is wrong */
+#flashcard.shake {
+  animation: shake 0.4s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+#speak-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 12px 28px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+#speak-btn:hover {
+  background: var(--accent-dark);
+  transform: translateY(-2px);
+}
+
+
+/* ---------------------
+   LETTER BLANKS
+   One box per letter. A "gap" is the space between
+   two words (like in "Carbon dioxide").
+   --------------------- */
+#blanks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+}
+
+.letter-box {
+  width: 26px;
+  height: 34px;
+  border-bottom: 3px solid var(--ink);
+  font-size: 22px;
+  font-weight: bold;
+  line-height: 34px;
+  text-transform: lowercase;
+}
+
+/* Letters that were given away by a hint */
+.letter-box.from-hint {
+  color: var(--accent-dark);
+}
+
+.is-correct .letter-box {
+  color: var(--correct);
+  border-color: var(--correct);
+}
+
+.is-revealed .letter-box {
+  color: var(--wrong);
+  border-color: var(--wrong);
+}
+
+.letter-gap {
+  width: 16px;
+}
+
+.hint {
+  font-size: 13px;
+  color: #a8936b;
+}
+
+
+/* ---------------------
+   ANSWER BOX + MESSAGE
+   --------------------- */
+#answer-input {
+  width: 90%;
+  font-size: 22px;
+  padding: 10px 14px;
+  border: 2px solid #e2d3b0;
+  border-radius: 12px;
+  text-align: center;
+  font-family: inherit;
+}
+
+#answer-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+#message {
+  min-height: 24px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#message.good {
+  color: var(--correct);
+}
+
+#message.bad {
+  color: var(--wrong);
+}
+
+
+/* ---------------------
+   CARD BUTTONS (Check, Hint, Show Answer)
+   --------------------- */
+#card-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+#card-buttons button {
+  border: none;
+  border-radius: 14px;
+  padding: 10px 18px;
+  font-size: 15px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+#card-buttons button:hover {
+  transform: translateY(-2px);
+}
+
+#card-buttons button:disabled {
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+}
+
+#check-btn {
+  background: var(--correct);
+}
+
+#hint-btn {
+  background: var(--accent-dark);
+}
+
+#answer-btn {
+  background: #8a7a5c;
+}
+
+
+/* ---------------------
+   NAVIGATION BUTTONS
+   --------------------- */
+#nav-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+#nav-controls button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+#nav-controls button:hover {
+  background: var(--accent-dark);
+  transform: translateY(-2px);
+}
+
+#deck-counter {
+  font-size: 15px;
+  color: #7a6440;
+  min-width: 60px;
+}
+
+.hint-text {
+  font-size: 13px;
+  color: #a8936b;
+}
